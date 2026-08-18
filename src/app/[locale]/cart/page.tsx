@@ -64,6 +64,7 @@ export default function CartPage() {
                   min={0}
                   value={item.quantity}
                   onChange={(e) => updateQuantity(item.id, Number(e.target.value) || 0)}
+                  aria-label={`Quantity for ${item.name}`}
                   className="w-16 rounded border px-1 py-0.5 text-xs"
                 />
                 <span className="text-xs text-gray-500">{item.unitLabel}</span>

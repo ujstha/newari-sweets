@@ -29,6 +29,46 @@ export async function signIn(formData: FormData) {
   return redirect({ href: "/admin", locale });
 }
 
+export async function verifyMfaChallenge(formData: FormData) {
+  const locale = await getLocale();
+  const factorId = formData.get("factorId");
+  const code = formData.get("code");
+
+  if (typeof factorId !== "string" || typeof code !== "string" || !code) {
+    return redirect({
+      href: { pathname: "/admin/mfa-challenge", query: { error: "invalid" } },
+      locale,
+    });
+  }
+
+  const supabase = await createClient();
+  const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({
+    factorId,
+  });
+
+  if (challengeError) {
+    return redirect({
+      href: { pathname: "/admin/mfa-challenge", query: { error: "invalid" } },
+      locale,
+    });
+  }
+
+  const { error: verifyError } = await supabase.auth.mfa.verify({
+    factorId,
+    challengeId: challenge.id,
+    code,
+  });
+
+  if (verifyError) {
+    return redirect({
+      href: { pathname: "/admin/mfa-challenge", query: { error: "invalid" } },
+      locale,
+    });
+  }
+
+  return redirect({ href: "/admin", locale });
+}
+
 export async function signOut() {
   const locale = await getLocale();
   const supabase = await createClient();

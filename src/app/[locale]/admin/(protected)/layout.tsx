@@ -38,5 +38,16 @@ export default async function AdminProtectedLayout({ children }: LayoutProps<"/[
     return redirect({ href: "/admin/login", locale });
   }
 
+  // MFA gate: if this admin has enrolled a verified TOTP factor, the
+  // session must actually be elevated to AAL2 before reaching any
+  // protected page -- a password-only (AAL1) session bounces to the
+  // challenge page instead. Admins who never enrolled a factor are
+  // unaffected (nextLevel stays aal1). See PLAN.md's "Shared admin
+  // account" MFA note.
+  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== aal.nextLevel) {
+    return redirect({ href: "/admin/mfa-challenge", locale });
+  }
+
   return <>{children}</>;
 }

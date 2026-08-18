@@ -43,6 +43,11 @@ export default function AdminDashboardPage() {
             Orders
           </Link>
         </li>
+        <li>
+          <Link href="/admin/security" className="text-sm underline">
+            Security (two-factor auth)
+          </Link>
+        </li>
       </ul>
     </main>
   );

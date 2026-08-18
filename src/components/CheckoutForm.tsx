@@ -100,27 +100,45 @@ export function CheckoutForm({
 
       <fieldset className="space-y-3">
         <legend className="font-medium">Contact info</legend>
-        <input
-          required
-          placeholder="Name"
-          value={customerName}
-          onChange={(e) => setCustomerName(e.target.value)}
-          className="w-full rounded border px-3 py-2 text-sm"
-        />
-        <input
-          required
-          placeholder="Phone"
-          value={customerPhone}
-          onChange={(e) => setCustomerPhone(e.target.value)}
-          className="w-full rounded border px-3 py-2 text-sm"
-        />
-        <input
-          type="email"
-          placeholder="Email (optional -- for status updates)"
-          value={customerEmail}
-          onChange={(e) => setCustomerEmail(e.target.value)}
-          className="w-full rounded border px-3 py-2 text-sm"
-        />
+        <div>
+          <label htmlFor="customerName" className="sr-only">
+            Name
+          </label>
+          <input
+            id="customerName"
+            required
+            placeholder="Name"
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+            className="w-full rounded border px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label htmlFor="customerPhone" className="sr-only">
+            Phone
+          </label>
+          <input
+            id="customerPhone"
+            required
+            placeholder="Phone"
+            value={customerPhone}
+            onChange={(e) => setCustomerPhone(e.target.value)}
+            className="w-full rounded border px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label htmlFor="customerEmail" className="sr-only">
+            Email (optional)
+          </label>
+          <input
+            id="customerEmail"
+            type="email"
+            placeholder="Email (optional -- for status updates)"
+            value={customerEmail}
+            onChange={(e) => setCustomerEmail(e.target.value)}
+            className="w-full rounded border px-3 py-2 text-sm"
+          />
+        </div>
       </fieldset>
 
       <fieldset className="space-y-3">
@@ -129,6 +147,7 @@ export function CheckoutForm({
           <button
             type="button"
             onClick={() => setFulfillmentType("pickup")}
+            aria-pressed={fulfillmentType === "pickup"}
             className={`rounded px-3 py-1 text-sm ${fulfillmentType === "pickup" ? "bg-black text-white" : "border"}`}
           >
             Pickup
@@ -136,6 +155,7 @@ export function CheckoutForm({
           <button
             type="button"
             onClick={() => setFulfillmentType("delivery")}
+            aria-pressed={fulfillmentType === "delivery"}
             className={`rounded px-3 py-1 text-sm ${fulfillmentType === "delivery" ? "bg-black text-white" : "border"}`}
           >
             Delivery
@@ -143,26 +163,44 @@ export function CheckoutForm({
         </div>
         {fulfillmentType === "delivery" ? (
           <div className="space-y-2">
-            <input
-              required
-              placeholder="Delivery address"
-              value={deliveryAddress}
-              onChange={(e) => setDeliveryAddress(e.target.value)}
-              className="w-full rounded border px-3 py-2 text-sm"
-            />
-            <input
-              required
-              placeholder="City"
-              value={deliveryCity}
-              onChange={(e) => setDeliveryCity(e.target.value)}
-              className="w-full rounded border px-3 py-2 text-sm"
-            />
-            <input
-              placeholder="Delivery notes (optional)"
-              value={deliveryNotes}
-              onChange={(e) => setDeliveryNotes(e.target.value)}
-              className="w-full rounded border px-3 py-2 text-sm"
-            />
+            <div>
+              <label htmlFor="deliveryAddress" className="sr-only">
+                Delivery address
+              </label>
+              <input
+                id="deliveryAddress"
+                required
+                placeholder="Delivery address"
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                className="w-full rounded border px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label htmlFor="deliveryCity" className="sr-only">
+                City
+              </label>
+              <input
+                id="deliveryCity"
+                required
+                placeholder="City"
+                value={deliveryCity}
+                onChange={(e) => setDeliveryCity(e.target.value)}
+                className="w-full rounded border px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label htmlFor="deliveryNotes" className="sr-only">
+                Delivery notes (optional)
+              </label>
+              <input
+                id="deliveryNotes"
+                placeholder="Delivery notes (optional)"
+                value={deliveryNotes}
+                onChange={(e) => setDeliveryNotes(e.target.value)}
+                className="w-full rounded border px-3 py-2 text-sm"
+              />
+            </div>
           </div>
         ) : null}
 
@@ -225,7 +263,12 @@ export function CheckoutForm({
           onChange={(e) => setTermsAccepted(e.target.checked)}
         />
         I accept the{" "}
-        <a href="/legal/terms-of-sale" target="_blank" className="underline">
+        <a
+          href="/legal/terms-of-sale"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
           Terms of Sale
         </a>
       </label>
