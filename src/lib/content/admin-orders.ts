@@ -6,6 +6,7 @@ export interface OrderQueueItem {
   order_number: string;
   status: OrderStatus;
   customer_name: string;
+  customer_phone: string;
   fulfillment_type: "pickup" | "delivery";
   requested_date: string;
   total_cents: number;
@@ -19,7 +20,7 @@ export async function getOrderQueue(): Promise<OrderQueueItem[]> {
   const { data } = await supabase
     .from("orders")
     .select(
-      "id, order_number, status, customer_name, fulfillment_type, requested_date, total_cents, created_at, customer_note, order_dietary_requests(order_id), order_items(custom_note, cake_message)",
+      "id, order_number, status, customer_name, customer_phone, fulfillment_type, requested_date, total_cents, created_at, customer_note, order_dietary_requests(order_id), order_items(custom_note, cake_message)",
     )
     .order("requested_date");
 
@@ -30,6 +31,7 @@ export async function getOrderQueue(): Promise<OrderQueueItem[]> {
       order_number: o.order_number,
       status: o.status as OrderStatus,
       customer_name: o.customer_name,
+      customer_phone: o.customer_phone,
       fulfillment_type: o.fulfillment_type,
       requested_date: o.requested_date,
       total_cents: o.total_cents,

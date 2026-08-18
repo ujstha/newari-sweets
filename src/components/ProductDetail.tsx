@@ -125,14 +125,21 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
               {product.images.length > 1 ? (
                 <div className="mt-2 flex gap-2">
                   {product.images.map((image, i) => (
-                    // eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section
-                    <img
+                    <button
                       key={image.storage_path}
-                      src={getPublicImageUrl(image.storage_path)}
-                      alt={image.alt_text}
+                      type="button"
                       onClick={() => setActiveImage(i)}
-                      className={`h-16 w-16 cursor-pointer rounded object-cover ${i === activeImage ? "ring-2 ring-black" : ""}`}
-                    />
+                      aria-current={i === activeImage}
+                      aria-label={`Show image ${i + 1} of ${product.images.length}`}
+                      className={`rounded ${i === activeImage ? "ring-2 ring-black" : ""}`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section */}
+                      <img
+                        src={getPublicImageUrl(image.storage_path)}
+                        alt=""
+                        className="h-16 w-16 rounded object-cover"
+                      />
+                    </button>
                   ))}
                 </div>
               ) : null}
@@ -173,6 +180,7 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
             <button
               type="button"
               onClick={() => setMode("quick")}
+              aria-pressed={mode === "quick"}
               className={`rounded px-3 py-1 text-sm ${mode === "quick" ? "bg-black text-white" : "border"}`}
             >
               Order as pictured
@@ -180,6 +188,7 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
             <button
               type="button"
               onClick={() => setMode("customize")}
+              aria-pressed={mode === "customize"}
               className={`rounded px-3 py-1 text-sm ${mode === "customize" ? "bg-black text-white" : "border"}`}
             >
               Customize
@@ -189,11 +198,11 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
           {mode === "customize" ? (
             <div className="mt-4 space-y-4">
               {product.option_groups.map((group) => (
-                <div key={group.id}>
-                  <p className="text-sm font-medium">
+                <fieldset key={group.id}>
+                  <legend className="text-sm font-medium">
                     {group.name}
                     {group.is_required ? " *" : ""}
-                  </p>
+                  </legend>
                   <div className="mt-1 space-y-1">
                     {group.option_values.map((value) => (
                       <label key={value.id} className="flex items-center gap-2 text-sm">
@@ -210,7 +219,7 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
                       </label>
                     ))}
                   </div>
-                </div>
+                </fieldset>
               ))}
 
               <div>

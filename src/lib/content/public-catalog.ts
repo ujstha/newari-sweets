@@ -54,11 +54,28 @@ export const getFeaturedProducts = cache(async (): Promise<CatalogProductListIte
   return all.filter((p) => p.is_featured);
 });
 
-// Best Sellers is intentionally NOT implemented yet -- it's defined in
-// PLAN.md as a live aggregate over completed-order quantities, and the
-// orders table doesn't exist until build-order Phase 6. Add
-// getBestSellingProducts() then, querying order_items joined to completed
-// orders over a trailing window -- no schema change needed here.
+// Live aggregate over completed-order quantities in a trailing window (see
+// PLAN.md's "Homepage highlights" row). orders/order_items have no public
+// SELECT policy, so this goes through get_best_selling_products() -- a
+// narrow RPC exposing only (product_id, quantity), never order/customer
+// data -- then joins the resulting ids back onto the normal active-product
+// list here (so an out-of-stock/deactivated product silently drops out).
+export const getBestSellingProducts = cache(
+  async (days = 90, limit = 6): Promise<CatalogProductListItem[]> => {
+    const supabase = await createClient();
+    const { data: ranked } = await supabase.rpc("get_best_selling_products", {
+      p_days: days,
+      p_limit: limit,
+    });
+    if (!ranked || ranked.length === 0) return [];
+
+    const all = await getActiveProducts();
+    const byId = new Map(all.map((p) => [p.id, p]));
+    return ranked
+      .map((r: { product_id: string }) => byId.get(r.product_id))
+      .filter((p: CatalogProductListItem | undefined): p is CatalogProductListItem => p != null);
+  },
+);
 
 export interface CatalogOptionValue {
   id: string;
