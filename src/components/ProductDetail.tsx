@@ -90,12 +90,14 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
       name: product.name_i18n.en ?? "",
       imagePath: product.images[0]?.storage_path ?? null,
       unitLabel: product.unit.code,
+      minPrepDays: product.min_prep_days,
       quantity,
       unitPriceCents: price.unitPriceCents,
       selectedOptions: product.option_groups.flatMap((g) =>
         g.option_values
           .filter((v) => selected[g.id]?.includes(v.id))
           .map((v) => ({
+            valueId: v.id,
             groupName: g.name,
             valueLabel: v.label,
             priceDeltaCents: v.price_delta_cents,
