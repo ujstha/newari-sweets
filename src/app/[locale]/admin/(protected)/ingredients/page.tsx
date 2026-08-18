@@ -20,6 +20,10 @@ export default async function AdminIngredientsPage() {
         option builder suggests by default.
       </p>
 
+      {ingredients.length === 0 ? (
+        <p className="mt-6 text-sm text-gray-600">No ingredients yet -- add the first one below.</p>
+      ) : null}
+
       <ul className="mt-6 space-y-4">
         {ingredients.map((ingredient) => {
           const updateThis = updateIngredient.bind(null, ingredient.id);

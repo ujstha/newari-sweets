@@ -8,6 +8,10 @@ export default async function AdminCategoriesPage() {
     <main className="mx-auto max-w-2xl p-8">
       <h1 className="text-xl font-semibold">Categories</h1>
 
+      {categories.length === 0 ? (
+        <p className="mt-6 text-sm text-gray-600">No categories yet -- add the first one below.</p>
+      ) : null}
+
       <ul className="mt-6 space-y-3">
         {categories.map((category) => {
           const updateThis = updateCategory.bind(null, category.id);
