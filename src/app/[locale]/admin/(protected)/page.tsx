@@ -1,3 +1,4 @@
+import { Link } from "@/i18n/navigation";
 import { signOut } from "../actions";
 
 export default function AdminDashboardPage() {
@@ -11,8 +12,20 @@ export default function AdminDashboardPage() {
           </button>
         </form>
       </div>
-      <p className="mt-4 text-sm text-gray-600">
-        Catalog, orders, and content management land here in later phases.
+      <ul className="mt-6 space-y-2">
+        <li>
+          <Link href="/admin/settings" className="text-sm underline">
+            Site content (business info, hero, banner)
+          </Link>
+        </li>
+        <li>
+          <Link href="/admin/content" className="text-sm underline">
+            Pages (about, legal)
+          </Link>
+        </li>
+      </ul>
+      <p className="mt-6 text-sm text-gray-600">
+        Catalog and order management land here in later phases.
       </p>
     </main>
   );
