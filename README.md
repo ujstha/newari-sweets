@@ -6,9 +6,11 @@ Website for Newari Sweets, a Helsinki-based side business selling Nepali/Newari 
 
 ## Current status
 
-**Build-order Phases 1–4 are done and merged to `dev`.** Repo/tooling/i18n/domain layer (Phase 1); auth + master data (Phase 2); site content CMS (Phase 3); and catalog authoring (Phase 4) — `products`/`option_groups`/`option_values`/`product_allergens`/`product_images` + RLS, the `product-images` Storage bucket, `duplicate_product()`, and admin screens for categories/ingredients/products (including the option-group/value builder and image upload). All tested against the real Supabase project (schema, RLS, storage, and the full admin UI flow).
+**Build-order Phases 1–5 are done and merged to `dev`.** Repo/tooling/i18n/domain layer (Phase 1); auth + master data (Phase 2); site content CMS (Phase 3); catalog authoring (Phase 4); and public storefront catalog (Phase 5) — product listing/detail pages, live price/allergen computation, quick-order vs. customize UI, a client-side cart (localStorage), and a Featured homepage section. All tested against the real Supabase project.
 
-See PLAN.md's "Phased Build Order" for what phases 5–10 cover next (Phase 5, Public storefront catalog, is up next). This is being built autonomously, phase by phase, without stopping for review between phases — see the note at the bottom of this file for what to check when you're back.
+Best Sellers is intentionally not built yet -- it's a live aggregate over completed-order quantities per PLAN.md, and the `orders` table doesn't exist until Phase 6.
+
+See PLAN.md's "Phased Build Order" for what phases 6–10 cover next (Phase 6, Cart + checkout + order creation, is up next). This is being built autonomously, phase by phase, without stopping for review between phases — see the note at the bottom of this file for what to check when you're back.
 
 Note PLAN.md uses "Phase" in two unrelated ways — don't confuse them:
 
@@ -185,7 +187,11 @@ open-next.config.ts      # OpenNext Cloudflare adapter config
 
 ## Picking up work
 
-Check PLAN.md's "Phased Build Order" for what's next. Phase 5 (Public storefront catalog) is next — listing/detail pages, live allergen badges, Featured/Best-Sellers sections, quick-order vs. customize UI, per-page OG tags. Each phase is scoped to end in something concretely testable end-to-end, per PLAN.md's Verification section — don't skip ahead to later phases' UI/features before their data model exists.
+Check PLAN.md's "Phased Build Order" for what's next. Phase 6 (Cart + checkout + order creation) is next — the `orders`/`order_items`/`order_item_options` schema, a real checkout form (fulfillment, minimum-lead-time date picker, dietary multiselect), server-side re-pricing via the `create_order` RPC, and the confirmation/status page. Once `orders` exists, also add `getBestSellingProducts()` to `public-catalog.ts` and wire the Best Sellers homepage section (deferred from Phase 5 for exactly this reason). Each phase is scoped to end in something concretely testable end-to-end, per PLAN.md's Verification section — don't skip ahead to later phases' UI/features before their data model exists.
+
+**Real bug found and fixed (Phase 5): default option-value selection for "quick order" was too eager.** The initial logic picked a group's default value for _every_ single-select group when nothing was explicitly marked `is_default`, including optional (non-required) groups like an "extra topping" add-on -- meaning "order as pictured" would silently add a paid extra (and its allergens) that was never actually pictured. Fixed to only auto-select a fallback for _required_ groups; optional groups start unselected unless a value is explicitly flagged `is_default`. Caught via an end-to-end test with a real ingredient-linked allergen, not by inspection -- worth remembering when adding similar "pick something reasonable" defaulting logic elsewhere.
+
+**Also fixed**: a pure helper (`getPublicImageUrl`) accidentally lived in the same module as the server-only Supabase client (`public-catalog.ts`), which broke the build the moment a Client Component (the cart page) imported it -- importing anything from a module pulls in that module's _entire_ dependency graph, server-only code included. Moved to its own client-safe module (`src/lib/content/image-url.ts`). General lesson for this codebase: keep pure/client-safe helpers out of modules that also export server-only data-fetchers, even when the helper itself has no server dependency.
 
 ### Notes from autonomous building (Phases 2-4, unattended session)
 

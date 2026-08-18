@@ -7,6 +7,7 @@ import { getSiteSettings } from "@/lib/content/site-settings";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
+import { CartProvider } from "@/lib/cart/CartContext";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -59,10 +60,12 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
     >
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider>
-          <AnnouncementBanner />
-          <Header />
-          <div className="flex-1">{children}</div>
-          <Footer />
+          <CartProvider>
+            <AnnouncementBanner />
+            <Header />
+            <div className="flex-1">{children}</div>
+            <Footer />
+          </CartProvider>
         </NextIntlClientProvider>
       </body>
     </html>

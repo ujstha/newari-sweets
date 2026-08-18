@@ -1,5 +1,6 @@
 import { getSiteSettings } from "@/lib/content/site-settings";
 import { Link } from "@/i18n/navigation";
+import { CartLink } from "./CartLink";
 
 export async function Header() {
   const settings = await getSiteSettings();
@@ -11,6 +12,12 @@ export async function Header() {
         <Link href="/" className="text-lg font-semibold">
           {name}
         </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/products" className="text-sm">
+            Shop
+          </Link>
+          <CartLink />
+        </div>
       </nav>
     </header>
   );
