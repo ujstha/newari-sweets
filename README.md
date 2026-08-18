@@ -6,7 +6,11 @@ Website for Newari Sweets, a Helsinki-based side business selling Nepali/Newari 
 
 ## Current status
 
-**Build-order Phase 1 (Scaffolding) is done.** Repo, tooling, Cloudflare/Supabase config, i18n mechanism, and the domain layer (with unit tests) are in place — see PLAN.md's "Phased Build Order" for what phases 2–10 cover. Nothing past scaffolding has been built yet: there's no database schema, no auth, no storefront pages beyond a placeholder home page.
+**Build-order Phase 1 (Scaffolding) is done and merged to `dev`.** Repo, tooling, Cloudflare/Supabase config, i18n mechanism, and the domain layer (with unit tests) are in place.
+
+**Build-order Phase 2 (Auth + master data foundation) is in progress**, on branch `feat-auth-master-data-foundation` (not yet merged to `dev` — see "Branching" below for why work happens on a branch, not directly on `dev`). So far: `admin_users` + `is_admin()`, `units`/`categories`/`allergens`/`ingredients` + join tables + RLS (migration `supabase/migrations/20260818202456_auth_and_master_data.sql`), `src/lib/supabase/{client,server,admin}.ts`, and a protected `/admin` shell with email/password sign-in (`src/app/[locale]/admin/`). Not built yet within this phase: nothing — this closes out Phase 2's scope per PLAN.md.
+
+See PLAN.md's "Phased Build Order" for what phases 3–10 cover next (Phase 3, Site content CMS, is up next).
 
 Note PLAN.md uses "Phase" in two unrelated ways — don't confuse them:
 
@@ -48,7 +52,15 @@ This Git repository is the **inner** `newari-sweets/` folder. The **outer** `new
    NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
    ```
 4. The **service role key** (Settings → API → service_role secret) goes in `.dev.vars` for local dev (never `.env.local`, and never committed) — see "Environment variables" below for why these use different files.
-5. No database schema exists yet (that starts at build-order Phase 2), so there's nothing to migrate/apply yet.
+5. Apply the schema: `npx supabase link --project-ref <your-project-ref>` then `npx supabase db push` (or, for local dev with Docker running, `npx supabase start` + `npx supabase db reset`, which also runs `supabase/seed.sql`). Repeat against the staging project too.
+
+### Creating the first admin user
+
+`admin_users` isn't seeded (it needs a real `auth.users` row, which only exists once someone signs up):
+
+1. In the Supabase dashboard → Authentication → Users → Add user, create an account with an email/password (this is the shared admin login — see PLAN.md's Architecture Decisions for why it's a single shared account for now).
+2. Copy that user's UUID, then in the SQL editor: `insert into admin_users (user_id) values ('<uuid>');`
+3. Sign in at `/admin/login` with that email/password.
 
 ### Setting up Cloudflare
 
@@ -112,21 +124,36 @@ Full reasoning in PLAN.md's "Development Workflow" section.
 
 ```
 src/
-  app/[locale]/       # all routes live under the locale segment (next-intl)
+  app/[locale]/
+    admin/
+      login/page.tsx        # public sign-in form, outside the auth gate
+      (protected)/           # route group -- layout.tsx gates everything
+        layout.tsx            # here on session + admin_users membership
+        page.tsx               # dashboard placeholder
+      actions.ts              # signIn/signOut Server Actions
   i18n/                # next-intl routing/request/navigation config
   lib/
     domain/            # framework-agnostic business logic (pricing, order
                         # workflow, ingredient/allergen union) -- pure,
                         # unit-tested, see PLAN.md's Architecture Decisions
+    supabase/
+      client.ts         # browser client (anon key)
+      server.ts          # server client (anon key, cookie-based session)
+      admin.ts            # service-role client -- server-only, bypasses
+                           # RLS, see the comment at the top of the file
     env.ts             # centralized env access, see "Environment variables"
   types/
     cloudflare-env.d.ts # hand-written CloudflareEnv augmentation
-  middleware.ts          # deliberately NOT proxy.ts -- see the comment in
-                          # the file, and PLAN.md's Deployment section
+  middleware.ts          # deliberately NOT proxy.ts (see the comment in the
+                          # file) -- also refreshes the Supabase session
+                          # cookie alongside next-intl's locale routing
 supabase/
-  migrations/          # empty -- starts at build-order Phase 2
+  migrations/          # schema starts here (build-order Phase 2)
   functions/           # empty -- starts later (order creation, payment
                         # webhook, notifications), RLS handles the rest
+  seed.sql              # local/dev reference master data (units,
+                         # categories, the 14 EU allergens) -- NOT
+                         # admin_users/products, see the comment at its top
 messages/
   en.json              # UI chrome strings (next-intl) -- NOT where product
                         # content translation lives, that's DB `*_i18n`
@@ -145,4 +172,4 @@ open-next.config.ts      # OpenNext Cloudflare adapter config
 
 ## Picking up work
 
-Check PLAN.md's "Phased Build Order" for what's next (currently: build-order Phase 2, Auth + master data foundation — `admin_users`, `is_admin()`, `units`, `categories`, `allergens`, `ingredients`). Each phase is scoped to end in something concretely testable end-to-end, per PLAN.md's Verification section — don't skip ahead to later phases' UI/features before their data model exists.
+Check PLAN.md's "Phased Build Order" for what's next. Build-order Phase 2 (this session's work, branch `feat-auth-master-data-foundation`) needs testing against a real Supabase project (apply the migration, create an admin user per "Creating the first admin user" above, confirm `/admin/login` → `/admin` → sign out works, and that RLS actually blocks a non-admin) before merging into `dev`. After that, Phase 3 (Site content CMS) is next — `site_settings`/`page_content` + RLS, admin CMS forms, public header/footer/hero/banner/legal pages rendered from DB content. Each phase is scoped to end in something concretely testable end-to-end, per PLAN.md's Verification section — don't skip ahead to later phases' UI/features before their data model exists.
