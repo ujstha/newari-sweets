@@ -38,8 +38,12 @@ export default function AdminDashboardPage() {
             Products
           </Link>
         </li>
+        <li>
+          <Link href="/admin/orders" className="text-sm underline">
+            Orders
+          </Link>
+        </li>
       </ul>
-      <p className="mt-6 text-sm text-gray-600">Order management lands here in a later phase.</p>
     </main>
   );
 }
