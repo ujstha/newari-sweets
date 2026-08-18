@@ -92,104 +92,108 @@ export interface CatalogProductDetail {
   option_groups: CatalogOptionGroup[];
 }
 
-export const getProductBySlug = cache(
-  async (slug: string): Promise<CatalogProductDetail | null> => {
-    const supabase = await createClient();
-    const { data } = await supabase
-      .from("products")
-      .select(
-        `id, slug, name_i18n, description_i18n, base_price_cents, supports_message, min_prep_days,
+const PRODUCT_DETAIL_SELECT = `id, slug, name_i18n, description_i18n, base_price_cents, supports_message, min_prep_days,
        highlight_note_i18n, category_id,
        unit:units(id, code, label_i18n, default_step),
        product_allergens(allergen:allergens(id, code, label_i18n)),
        product_images(storage_path, alt_text, is_primary, sort_order),
        option_groups(id, name, selection_type, is_required, sort_order,
          option_values(id, label, price_delta_cents, is_default, is_active, sort_order,
-           ingredient:ingredients(id, ingredient_allergens(allergen:allergens(id, code, label_i18n)))))`,
-      )
-      .eq("slug", slug)
-      .eq("is_active", true)
-      .maybeSingle();
+           ingredient:ingredients(id, ingredient_allergens(allergen:allergens(id, code, label_i18n)))))`;
 
-    if (!data) return null;
+async function fetchProductDetail(
+  filter: { slug: string } | { id: string },
+): Promise<CatalogProductDetail | null> {
+  const supabase = await createClient();
+  let query = supabase.from("products").select(PRODUCT_DETAIL_SELECT).eq("is_active", true);
+  query = "slug" in filter ? query.eq("slug", filter.slug) : query.eq("id", filter.id);
+  const { data } = await query.maybeSingle();
 
-    const baseAllergens = (
-      data.product_allergens as unknown as { allergen: { id: string; code: string } }[]
-    ).map((pa) => ({ id: pa.allergen.id, code: pa.allergen.code }));
+  if (!data) return null;
 
-    const images = (
-      data.product_images as {
-        storage_path: string;
-        alt_text: string;
-        is_primary: boolean;
-        sort_order: number;
-      }[]
-    )
-      .slice()
-      .sort((a, b) => a.sort_order - b.sort_order);
+  const baseAllergens = (
+    data.product_allergens as unknown as { allergen: { id: string; code: string } }[]
+  ).map((pa) => ({ id: pa.allergen.id, code: pa.allergen.code }));
 
-    const optionGroups = (
-      data.option_groups as unknown as {
+  const images = (
+    data.product_images as {
+      storage_path: string;
+      alt_text: string;
+      is_primary: boolean;
+      sort_order: number;
+    }[]
+  )
+    .slice()
+    .sort((a, b) => a.sort_order - b.sort_order);
+
+  const optionGroups = (
+    data.option_groups as unknown as {
+      id: string;
+      name: string;
+      selection_type: "single" | "multiple";
+      is_required: boolean;
+      sort_order: number;
+      option_values: {
         id: string;
-        name: string;
-        selection_type: "single" | "multiple";
-        is_required: boolean;
+        label: string;
+        price_delta_cents: number;
+        is_default: boolean;
+        is_active: boolean;
         sort_order: number;
-        option_values: {
+        ingredient: {
           id: string;
-          label: string;
-          price_delta_cents: number;
-          is_default: boolean;
-          is_active: boolean;
-          sort_order: number;
-          ingredient: {
-            id: string;
-            ingredient_allergens: { allergen: { id: string; code: string } }[];
-          } | null;
-        }[];
-      }[]
-    )
-      .slice()
-      .sort((a, b) => a.sort_order - b.sort_order)
-      .map((g) => ({
-        id: g.id,
-        name: g.name,
-        selection_type: g.selection_type,
-        is_required: g.is_required,
-        option_values: g.option_values
-          .filter((v) => v.is_active)
-          .sort((a, b) => a.sort_order - b.sort_order)
-          .map((v) => ({
-            id: v.id,
-            label: v.label,
-            price_delta_cents: v.price_delta_cents,
-            is_default: v.is_default,
-            ingredient: v.ingredient
-              ? {
-                  id: v.ingredient.id,
-                  allergens: v.ingredient.ingredient_allergens.map((ia) => ({
-                    id: ia.allergen.id,
-                    code: ia.allergen.code,
-                  })),
-                }
-              : null,
-          })),
-      }));
+          ingredient_allergens: { allergen: { id: string; code: string } }[];
+        } | null;
+      }[];
+    }[]
+  )
+    .slice()
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((g) => ({
+      id: g.id,
+      name: g.name,
+      selection_type: g.selection_type,
+      is_required: g.is_required,
+      option_values: g.option_values
+        .filter((v) => v.is_active)
+        .sort((a, b) => a.sort_order - b.sort_order)
+        .map((v) => ({
+          id: v.id,
+          label: v.label,
+          price_delta_cents: v.price_delta_cents,
+          is_default: v.is_default,
+          ingredient: v.ingredient
+            ? {
+                id: v.ingredient.id,
+                allergens: v.ingredient.ingredient_allergens.map((ia) => ({
+                  id: ia.allergen.id,
+                  code: ia.allergen.code,
+                })),
+              }
+            : null,
+        })),
+    }));
 
-    return {
-      id: data.id,
-      slug: data.slug,
-      name_i18n: data.name_i18n,
-      description_i18n: data.description_i18n,
-      base_price_cents: data.base_price_cents,
-      supports_message: data.supports_message,
-      min_prep_days: data.min_prep_days,
-      highlight_note_i18n: data.highlight_note_i18n,
-      category_id: data.category_id,
-      unit: data.unit as unknown as CatalogProductDetail["unit"],
-      base_allergens: baseAllergens,
-      images,
-      option_groups: optionGroups,
-    };
-  },
-);
+  return {
+    id: data.id,
+    slug: data.slug,
+    name_i18n: data.name_i18n,
+    description_i18n: data.description_i18n,
+    base_price_cents: data.base_price_cents,
+    supports_message: data.supports_message,
+    min_prep_days: data.min_prep_days,
+    highlight_note_i18n: data.highlight_note_i18n,
+    category_id: data.category_id,
+    unit: data.unit as unknown as CatalogProductDetail["unit"],
+    base_allergens: baseAllergens,
+    images,
+    option_groups: optionGroups,
+  };
+}
+
+export const getProductBySlug = cache((slug: string) => fetchProductDetail({ slug }));
+
+// Used by checkout's server-side re-pricing (see [locale]/checkout/actions.ts)
+// -- never trusts the client's cart prices, always re-fetches live data by
+// product id.
+export const getProductForOrder = cache((id: string) => fetchProductDetail({ id }));

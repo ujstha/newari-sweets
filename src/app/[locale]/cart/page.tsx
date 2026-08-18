@@ -87,9 +87,14 @@ export default function CartPage() {
         Subtotal: {(subtotal / 100).toFixed(2)} €
       </p>
 
-      <p className="mt-2 text-right text-sm text-gray-500">
-        Checkout isn&apos;t built yet -- coming in the next phase.
-      </p>
+      <div className="mt-4 text-right">
+        <Link
+          href="/checkout"
+          className="inline-block rounded bg-black px-4 py-2 text-sm text-white"
+        >
+          Checkout
+        </Link>
+      </div>
     </main>
   );
 }
