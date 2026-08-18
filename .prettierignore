@@ -4,3 +4,4 @@
 node_modules
 coverage
 public
+worker-configuration.d.ts

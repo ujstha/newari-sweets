@@ -1,0 +1,16 @@
+# Copy to .dev.vars for local development. .dev.vars is gitignored.
+#
+# This is wrangler's own convention for local Worker secrets -- it's
+# separate from .env.local (which Next.js reads directly) because these
+# values are read as Cloudflare Worker bindings via
+# `getCloudflareContext().env` (see src/lib/env.ts's getServerEnv()), not
+# via `process.env`. `initOpenNextCloudflareForDev()` in next.config.ts is
+# what makes `next dev` pick this file up locally, mirroring how the
+# deployed Worker reads secrets set via `wrangler secret put`.
+#
+# NEVER put a NEXT_PUBLIC_* var here -- those belong in .env.local instead.
+
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Not needed until build-order Phase 8 (Notifications).
+RESEND_API_KEY=

@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "prepare": "husky",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
+    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "cf:typegen": "wrangler types"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,mjs}": [
