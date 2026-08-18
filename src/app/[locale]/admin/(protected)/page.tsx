@@ -23,10 +23,23 @@ export default function AdminDashboardPage() {
             Pages (about, legal)
           </Link>
         </li>
+        <li>
+          <Link href="/admin/categories" className="text-sm underline">
+            Categories
+          </Link>
+        </li>
+        <li>
+          <Link href="/admin/ingredients" className="text-sm underline">
+            Ingredients
+          </Link>
+        </li>
+        <li>
+          <Link href="/admin/products" className="text-sm underline">
+            Products
+          </Link>
+        </li>
       </ul>
-      <p className="mt-6 text-sm text-gray-600">
-        Catalog and order management land here in later phases.
-      </p>
+      <p className="mt-6 text-sm text-gray-600">Order management lands here in a later phase.</p>
     </main>
   );
 }
