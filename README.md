@@ -6,11 +6,11 @@ Website for Newari Sweets, a Helsinki-based side business selling Nepali/Newari 
 
 ## Current status
 
-**Build-order Phase 1 (Scaffolding) is done and merged to `dev`.** Repo, tooling, Cloudflare/Supabase config, i18n mechanism, and the domain layer (with unit tests) are in place.
+**Build-order Phases 1–2 are done and merged to `dev`.** Repo/tooling/i18n/domain layer (Phase 1), and auth + master data (`admin_users`, `is_admin()`, `units`/`categories`/`allergens`/`ingredients` + RLS, protected `/admin` shell) (Phase 2) — both tested against a real Supabase project.
 
-**Build-order Phase 2 (Auth + master data foundation) is in progress**, on branch `feat-auth-master-data-foundation` (not yet merged to `dev` — see "Branching" below for why work happens on a branch, not directly on `dev`). So far: `admin_users` + `is_admin()`, `units`/`categories`/`allergens`/`ingredients` + join tables + RLS (migration `supabase/migrations/20260818202456_auth_and_master_data.sql`), `src/lib/supabase/{client,server,admin}.ts`, and a protected `/admin` shell with email/password sign-in (`src/app/[locale]/admin/`). Not built yet within this phase: nothing — this closes out Phase 2's scope per PLAN.md.
+**Build-order Phase 3 (Site content CMS) is in progress**, on branch `feat-site-content-cms` (not yet merged to `dev`). So far: `site_settings` (singleton) + `page_content` (fixed keys: about, legal_privacy, legal_terms, legal_imprint) + RLS (migration `supabase/migrations/20260818213111_site_content_cms.sql`), admin forms at `/admin/settings` and `/admin/content/[key]`, and the public site now renders header/footer/announcement-banner/homepage-hero/legal pages from that DB content instead of hardcoded text, plus OG metadata defaults sourced from `site_settings`. Not built yet within this phase: nothing outstanding — this closes out Phase 3's scope per PLAN.md.
 
-See PLAN.md's "Phased Build Order" for what phases 3–10 cover next (Phase 3, Site content CMS, is up next).
+See PLAN.md's "Phased Build Order" for what phases 4–10 cover next (Phase 4, Catalog authoring, is up next).
 
 Note PLAN.md uses "Phase" in two unrelated ways — don't confuse them:
 
@@ -128,14 +128,28 @@ src/
     admin/
       login/page.tsx        # public sign-in form, outside the auth gate
       (protected)/           # route group -- layout.tsx gates everything
-        layout.tsx            # here on session + admin_users membership
-        page.tsx               # dashboard placeholder
+        layout.tsx            # here on session + admin_users membership,
+                               # force-dynamic (admin data must never cache)
+        page.tsx               # dashboard, links to settings/content
+        settings/               # site_settings form (business info, hero,
+                                 # announcement banner, min prep days)
+        content/[key]/          # page_content editor (about, 3 legal pages)
       actions.ts              # signIn/signOut Server Actions
+    legal/{privacy,terms-of-sale,imprint}/page.tsx  # render page_content
+  components/
+    Header.tsx, Footer.tsx, AnnouncementBanner.tsx  # site chrome, all
+                                                      # sourced from DB
+    PageContentBody.tsx    # shared title+markdown renderer for the fixed
+                            # CMS pages (react-markdown, no raw HTML)
   i18n/                # next-intl routing/request/navigation config
   lib/
+    content/
+      site-settings.ts   # getSiteSettings() -- React cache()-wrapped
+      page-content.ts     # getPageContent(key) -- same
     domain/            # framework-agnostic business logic (pricing, order
-                        # workflow, ingredient/allergen union) -- pure,
-                        # unit-tested, see PLAN.md's Architecture Decisions
+                        # workflow, ingredient/allergen union, i18n content
+                        # picking) -- pure, unit-tested, see PLAN.md's
+                        # Architecture Decisions
     supabase/
       client.ts         # browser client (anon key)
       server.ts          # server client (anon key, cookie-based session)
@@ -153,7 +167,8 @@ supabase/
                         # webhook, notifications), RLS handles the rest
   seed.sql              # local/dev reference master data (units,
                          # categories, the 14 EU allergens) -- NOT
-                         # admin_users/products, see the comment at its top
+                         # admin_users/products/site_settings, see the
+                         # comment at its top
 messages/
   en.json              # UI chrome strings (next-intl) -- NOT where product
                         # content translation lives, that's DB `*_i18n`
@@ -172,4 +187,6 @@ open-next.config.ts      # OpenNext Cloudflare adapter config
 
 ## Picking up work
 
-Check PLAN.md's "Phased Build Order" for what's next. Build-order Phase 2 (this session's work, branch `feat-auth-master-data-foundation`) needs testing against a real Supabase project (apply the migration, create an admin user per "Creating the first admin user" above, confirm `/admin/login` → `/admin` → sign out works, and that RLS actually blocks a non-admin) before merging into `dev`. After that, Phase 3 (Site content CMS) is next — `site_settings`/`page_content` + RLS, admin CMS forms, public header/footer/hero/banner/legal pages rendered from DB content. Each phase is scoped to end in something concretely testable end-to-end, per PLAN.md's Verification section — don't skip ahead to later phases' UI/features before their data model exists.
+Check PLAN.md's "Phased Build Order" for what's next. Build-order Phase 3 (branch `feat-site-content-cms`) has been tested end-to-end against the real Supabase project (apply the migration, edit content at `/admin/settings` and `/admin/content/[key]`, confirm it renders on the public site) and is ready to merge into `dev`. After that, Phase 4 (Catalog authoring) is next — `products`/`option_groups`/`option_values`/`product_allergens`, category manager, ingredient catalog manager, the product + option builder, `duplicate_product` RPC. Each phase is scoped to end in something concretely testable end-to-end, per PLAN.md's Verification section — don't skip ahead to later phases' UI/features before their data model exists.
+
+**Known dev-only quirk observed while testing Phase 3**: a Playwright/Chromium `page.reload()` can show a stale value on `/admin/*` pages, even though the database, a fresh navigation (`page.goto()`), and plain `curl` all return correct data immediately after a save. `export const dynamic = "force-dynamic"` is set on the protected admin layout as a defensive measure regardless, but this looks like a browser-automation cache-revalidation artifact tied to `Cache-Control: no-cache, must-revalidate` with no ETag, not an application bug -- worth a second look if it ever reproduces with a real browser instead of Playwright's `reload()`.

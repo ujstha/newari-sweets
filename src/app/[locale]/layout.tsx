@@ -3,6 +3,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
+import { getSiteSettings } from "@/lib/content/site-settings";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -15,10 +19,27 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Newari Sweets",
-  description: "Nepali sweets and custom cakes, made to order in Helsinki.",
-};
+// Site-wide OG/metadata defaults, sourced from admin-editable content so
+// they stay correct without a redeploy -- individual pages (homepage,
+// legal pages) can still override title/description via their own
+// generateMetadata. See PLAN.md's Storefront "Social sharing" row.
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const name = settings.business_name || "Newari Sweets";
+  const description =
+    settings.service_area_text || "Nepali sweets and custom cakes, made to order in Helsinki.";
+
+  return {
+    title: { default: name, template: `%s | ${name}` },
+    description,
+    openGraph: {
+      siteName: name,
+      title: name,
+      description,
+      images: settings.hero_image_url ? [settings.hero_image_url] : [],
+    },
+  };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -37,7 +58,12 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <AnnouncementBanner />
+          <Header />
+          <div className="flex-1">{children}</div>
+          <Footer />
+        </NextIntlClientProvider>
       </body>
     </html>
   );
