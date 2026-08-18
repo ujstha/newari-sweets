@@ -1,0 +1,1 @@
+Edge Functions are reserved for the few cases RLS can't express -- order creation's atomic price-integrity write (Phase 6), and later the payment webhook (Phase 2 payment seam) and the notification function (Phase 8). Not used for routine admin CRUD. See PLAN.md's RLS & Security section.

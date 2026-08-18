@@ -1,0 +1,56 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "newari-sweets",
+  // Bump this only deliberately -- see https://developers.cloudflare.com/workers/configuration/compatibility-dates/
+  "compatibility_date": "2024-09-23",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+  "services": [
+    {
+      // Self-reference service binding, the service name must match the worker name.
+      // See https://opennext.js.org/cloudflare/caching
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "newari-sweets",
+    },
+  ],
+  // Public (safe to expose) Supabase project vars for PRODUCTION (main branch).
+  // Secrets (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY) are NOT set here --
+  // set them via `wrangler secret put <NAME>` once the Supabase/Resend
+  // projects exist, per PLAN.md's Deployment section.
+  "vars": {
+    "NEXT_PUBLIC_SUPABASE_URL": "",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "",
+  },
+  // Staging environment, deployed from the `dev` branch, pointing at a
+  // separate staging Supabase project so it's safe to break. See PLAN.md's
+  // Development Workflow section.
+  //
+  // Image optimization is intentionally NOT configured here (no `images`
+  // binding): Phase 1 uses `images.unoptimized = true` in next.config.ts
+  // and client-side pre-resize on admin upload instead.
+  //
+  // R2 incremental cache is intentionally omitted too -- Phase 1 keeps the
+  // Next.js feature surface modest (no ISR/on-demand-revalidation
+  // reliance). Revisit via
+  // @opennextjs/cloudflare/overrides/incremental-cache/r2-incremental-cache
+  // if that changes.
+  "env": {
+    "staging": {
+      "name": "newari-sweets-staging",
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "newari-sweets-staging",
+        },
+      ],
+      "vars": {
+        "NEXT_PUBLIC_SUPABASE_URL": "",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY": "",
+      },
+    },
+  },
+}
