@@ -1,0 +1,195 @@
+import { cache } from "react";
+import { createClient } from "@/lib/supabase/server";
+import type { LocalizedText } from "@/lib/domain/i18n-content";
+import type { AllergenRef, IngredientRef } from "@/lib/domain/ingredients";
+
+export interface CatalogCategory {
+  id: string;
+  name_i18n: LocalizedText;
+  slug: string;
+  sort_order: number;
+}
+
+export interface CatalogProductListItem {
+  id: string;
+  slug: string;
+  name_i18n: LocalizedText;
+  base_price_cents: number;
+  unit: { code: string; label_i18n: LocalizedText };
+  category: { slug: string; name_i18n: LocalizedText };
+  primary_image_path: string | null;
+  is_featured: boolean;
+}
+
+// Public read (RLS: active products only for anon). Grouped by category for
+// the /products listing -- see PLAN.md's "Category browsing" row.
+export const getActiveProducts = cache(async (): Promise<CatalogProductListItem[]> => {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("products")
+    .select(
+      "id, slug, name_i18n, base_price_cents, is_featured, unit:units(code, label_i18n), category:categories(slug, name_i18n), product_images(storage_path, is_primary)",
+    )
+    .eq("is_active", true)
+    .order("sort_order");
+
+  return (data ?? []).map((p) => {
+    const images = p.product_images as { storage_path: string; is_primary: boolean }[];
+    const primary = images.find((i) => i.is_primary) ?? images[0];
+    return {
+      id: p.id,
+      slug: p.slug,
+      name_i18n: p.name_i18n,
+      base_price_cents: p.base_price_cents,
+      is_featured: p.is_featured,
+      unit: p.unit as unknown as { code: string; label_i18n: LocalizedText },
+      category: p.category as unknown as { slug: string; name_i18n: LocalizedText },
+      primary_image_path: primary?.storage_path ?? null,
+    };
+  });
+});
+
+export const getFeaturedProducts = cache(async (): Promise<CatalogProductListItem[]> => {
+  const all = await getActiveProducts();
+  return all.filter((p) => p.is_featured);
+});
+
+// Best Sellers is intentionally NOT implemented yet -- it's defined in
+// PLAN.md as a live aggregate over completed-order quantities, and the
+// orders table doesn't exist until build-order Phase 6. Add
+// getBestSellingProducts() then, querying order_items joined to completed
+// orders over a trailing window -- no schema change needed here.
+
+export interface CatalogOptionValue {
+  id: string;
+  label: string;
+  price_delta_cents: number;
+  is_default: boolean;
+  ingredient: IngredientRef | null;
+}
+
+export interface CatalogOptionGroup {
+  id: string;
+  name: string;
+  selection_type: "single" | "multiple";
+  is_required: boolean;
+  option_values: CatalogOptionValue[];
+}
+
+export interface CatalogProductDetail {
+  id: string;
+  slug: string;
+  name_i18n: LocalizedText;
+  description_i18n: LocalizedText;
+  base_price_cents: number;
+  supports_message: boolean;
+  min_prep_days: number | null;
+  highlight_note_i18n: LocalizedText;
+  unit: { id: string; code: string; label_i18n: LocalizedText; default_step: number };
+  category_id: string;
+  base_allergens: AllergenRef[];
+  images: { storage_path: string; alt_text: string; is_primary: boolean }[];
+  option_groups: CatalogOptionGroup[];
+}
+
+export const getProductBySlug = cache(
+  async (slug: string): Promise<CatalogProductDetail | null> => {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("products")
+      .select(
+        `id, slug, name_i18n, description_i18n, base_price_cents, supports_message, min_prep_days,
+       highlight_note_i18n, category_id,
+       unit:units(id, code, label_i18n, default_step),
+       product_allergens(allergen:allergens(id, code, label_i18n)),
+       product_images(storage_path, alt_text, is_primary, sort_order),
+       option_groups(id, name, selection_type, is_required, sort_order,
+         option_values(id, label, price_delta_cents, is_default, is_active, sort_order,
+           ingredient:ingredients(id, ingredient_allergens(allergen:allergens(id, code, label_i18n)))))`,
+      )
+      .eq("slug", slug)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (!data) return null;
+
+    const baseAllergens = (
+      data.product_allergens as unknown as { allergen: { id: string; code: string } }[]
+    ).map((pa) => ({ id: pa.allergen.id, code: pa.allergen.code }));
+
+    const images = (
+      data.product_images as {
+        storage_path: string;
+        alt_text: string;
+        is_primary: boolean;
+        sort_order: number;
+      }[]
+    )
+      .slice()
+      .sort((a, b) => a.sort_order - b.sort_order);
+
+    const optionGroups = (
+      data.option_groups as unknown as {
+        id: string;
+        name: string;
+        selection_type: "single" | "multiple";
+        is_required: boolean;
+        sort_order: number;
+        option_values: {
+          id: string;
+          label: string;
+          price_delta_cents: number;
+          is_default: boolean;
+          is_active: boolean;
+          sort_order: number;
+          ingredient: {
+            id: string;
+            ingredient_allergens: { allergen: { id: string; code: string } }[];
+          } | null;
+        }[];
+      }[]
+    )
+      .slice()
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map((g) => ({
+        id: g.id,
+        name: g.name,
+        selection_type: g.selection_type,
+        is_required: g.is_required,
+        option_values: g.option_values
+          .filter((v) => v.is_active)
+          .sort((a, b) => a.sort_order - b.sort_order)
+          .map((v) => ({
+            id: v.id,
+            label: v.label,
+            price_delta_cents: v.price_delta_cents,
+            is_default: v.is_default,
+            ingredient: v.ingredient
+              ? {
+                  id: v.ingredient.id,
+                  allergens: v.ingredient.ingredient_allergens.map((ia) => ({
+                    id: ia.allergen.id,
+                    code: ia.allergen.code,
+                  })),
+                }
+              : null,
+          })),
+      }));
+
+    return {
+      id: data.id,
+      slug: data.slug,
+      name_i18n: data.name_i18n,
+      description_i18n: data.description_i18n,
+      base_price_cents: data.base_price_cents,
+      supports_message: data.supports_message,
+      min_prep_days: data.min_prep_days,
+      highlight_note_i18n: data.highlight_note_i18n,
+      category_id: data.category_id,
+      unit: data.unit as unknown as CatalogProductDetail["unit"],
+      base_allergens: baseAllergens,
+      images,
+      option_groups: optionGroups,
+    };
+  },
+);
