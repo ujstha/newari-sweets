@@ -12,16 +12,12 @@ export default function LocaleError({ error, reset }: { error: Error; reset: () 
   }, [error]);
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-1 flex-col items-center justify-center p-8 text-center">
-      <h1 className="text-2xl font-semibold">Something went wrong</h1>
-      <p className="mt-2 text-sm text-gray-600">
+    <main className="mx-auto flex max-w-2xl flex-1 flex-col items-center justify-center px-4 py-14 text-center">
+      <h1 className="font-display text-3xl font-semibold text-ink">Something went wrong</h1>
+      <p className="mt-2 text-sm text-ink-soft">
         Sorry about that -- please try again. If it keeps happening, contact us directly.
       </p>
-      <button
-        type="button"
-        onClick={reset}
-        className="mt-6 rounded bg-black px-4 py-2 text-sm text-white"
-      >
+      <button type="button" onClick={reset} className="btn-primary mt-6">
         Try again
       </button>
     </main>

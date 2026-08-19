@@ -32,6 +32,15 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: "Cancelled",
 };
 
+const STATUS_TONE: Record<string, string> = {
+  pending_review: "bg-gold-soft text-ink-soft",
+  approved: "bg-brand-soft text-brand-dark",
+  declined: "bg-ink/5 text-ink-soft",
+  ready: "bg-brand-soft text-brand-dark",
+  completed: "bg-brand text-white",
+  cancelled: "bg-ink/5 text-ink-soft",
+};
+
 export default async function OrderStatusPage(props: PageProps<"/[locale]/orders/[orderId]">) {
   const { orderId } = await props.params;
 
@@ -44,53 +53,63 @@ export default async function OrderStatusPage(props: PageProps<"/[locale]/orders
   }
 
   return (
-    <main className="mx-auto max-w-xl p-8">
-      <h1 className="text-xl font-semibold">Order {order.order_number}</h1>
-      <p className="mt-2 text-lg font-medium">{STATUS_LABELS[order.status] ?? order.status}</p>
+    <main className="mx-auto max-w-xl px-4 py-10 sm:px-8 sm:py-14">
+      <h1 className="font-display text-2xl font-semibold text-ink">Order {order.order_number}</h1>
+      <span
+        className={`mt-3 inline-block rounded-full px-3 py-1 text-sm font-medium ${STATUS_TONE[order.status] ?? "bg-ink/5 text-ink-soft"}`}
+      >
+        {STATUS_LABELS[order.status] ?? order.status}
+      </span>
 
       {order.decision_reason ? (
-        <p className="mt-2 rounded bg-gray-50 p-3 text-sm text-gray-700">{order.decision_reason}</p>
+        <p className="mt-4 rounded-xl bg-gold-soft p-4 text-sm text-ink-soft">
+          {order.decision_reason}
+        </p>
       ) : null}
 
       {order.status === "pending_review" ? (
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-4 text-sm text-ink-soft">
           This is an order request, not a confirmed order. We&apos;ll be in touch to confirm and
           arrange cash or mobile-pay on pickup/delivery.
         </p>
       ) : null}
 
-      <p className="mt-4 text-sm text-gray-600">
+      <p className="mt-5 text-sm text-ink-soft">
         {order.fulfillment_type === "pickup" ? "Pickup" : "Delivery"} requested for{" "}
-        {order.requested_date}
+        <span className="font-medium text-ink">{order.requested_date}</span>
       </p>
 
       <ul className="mt-6 space-y-3">
         {order.items.map((item, i) => (
-          <li key={i} className="rounded border p-3 text-sm">
-            <p className="font-medium">
+          <li key={i} className="card-surface p-4 text-sm">
+            <p className="font-medium text-ink">
               {item.quantity} {item.unit_label_snapshot} &times; {item.product_name_snapshot}
             </p>
             {item.options.length > 0 ? (
-              <p className="text-xs text-gray-500">
+              <p className="mt-0.5 text-xs text-ink-soft">
                 {item.options.map((o) => o.option_value_label_snapshot).join(", ")}
               </p>
             ) : null}
             {item.cake_message ? (
-              <p className="text-xs text-gray-500">Message: &quot;{item.cake_message}&quot;</p>
+              <p className="mt-0.5 text-xs text-ink-soft">
+                Message: &quot;{item.cake_message}&quot;
+              </p>
             ) : null}
             {item.custom_note ? (
-              <p className="text-xs text-gray-500">Note: {item.custom_note}</p>
+              <p className="mt-0.5 text-xs text-ink-soft">Note: {item.custom_note}</p>
             ) : null}
-            <p className="mt-1 text-right">{(item.line_total_cents / 100).toFixed(2)} €</p>
+            <p className="mt-2 text-right font-medium text-ink">
+              {(item.line_total_cents / 100).toFixed(2)} €
+            </p>
           </li>
         ))}
       </ul>
 
-      <p className="mt-4 text-right text-lg font-semibold">
+      <p className="mt-6 text-right font-display text-xl font-semibold text-ink">
         Total: {(order.total_cents / 100).toFixed(2)} €
       </p>
 
-      <p className="mt-6 text-xs text-gray-500">
+      <p className="mt-8 text-center text-xs text-ink-faint">
         Bookmark this page to check your order status anytime.
       </p>
     </main>

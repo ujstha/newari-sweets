@@ -87,19 +87,19 @@ export function CheckoutForm({
   }
 
   if (items.length === 0) {
-    return <p className="mt-4 text-sm text-gray-600">Your cart is empty.</p>;
+    return <p className="mt-4 text-sm text-ink-soft">Your cart is empty.</p>;
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-      <p className="rounded bg-gray-50 p-3 text-sm text-gray-700">
-        Submitting this order sends a <strong>request</strong> -- it isn&apos;t confirmed until we
-        approve it. We&apos;ll be in touch to confirm and arrange cash or mobile-pay on
-        pickup/delivery.
+    <form onSubmit={handleSubmit} className="mt-6 space-y-8">
+      <p className="rounded-xl bg-gold-soft p-4 text-sm text-ink-soft">
+        Submitting this order sends a <strong className="text-ink">request</strong> -- it isn&apos;t
+        confirmed until we approve it. We&apos;ll be in touch to confirm and arrange cash or
+        mobile-pay on pickup/delivery.
       </p>
 
       <fieldset className="space-y-3">
-        <legend className="font-medium">Contact info</legend>
+        <legend className="field-label mb-1">Contact info</legend>
         <div>
           <label htmlFor="customerName" className="sr-only">
             Name
@@ -110,7 +110,7 @@ export function CheckoutForm({
             placeholder="Name"
             value={customerName}
             onChange={(e) => setCustomerName(e.target.value)}
-            className="w-full rounded border px-3 py-2 text-sm"
+            className="input-field"
           />
         </div>
         <div>
@@ -123,7 +123,7 @@ export function CheckoutForm({
             placeholder="Phone"
             value={customerPhone}
             onChange={(e) => setCustomerPhone(e.target.value)}
-            className="w-full rounded border px-3 py-2 text-sm"
+            className="input-field"
           />
         </div>
         <div>
@@ -136,19 +136,19 @@ export function CheckoutForm({
             placeholder="Email (optional -- for status updates)"
             value={customerEmail}
             onChange={(e) => setCustomerEmail(e.target.value)}
-            className="w-full rounded border px-3 py-2 text-sm"
+            className="input-field"
           />
         </div>
       </fieldset>
 
       <fieldset className="space-y-3">
-        <legend className="font-medium">Fulfillment</legend>
-        <div className="flex gap-2">
+        <legend className="field-label mb-1">Fulfillment</legend>
+        <div className="inline-flex rounded-full border border-border-warm bg-surface p-1">
           <button
             type="button"
             onClick={() => setFulfillmentType("pickup")}
             aria-pressed={fulfillmentType === "pickup"}
-            className={`rounded px-3 py-1 text-sm ${fulfillmentType === "pickup" ? "bg-black text-white" : "border"}`}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${fulfillmentType === "pickup" ? "bg-brand text-white" : "text-ink-soft hover:text-ink"}`}
           >
             Pickup
           </button>
@@ -156,13 +156,13 @@ export function CheckoutForm({
             type="button"
             onClick={() => setFulfillmentType("delivery")}
             aria-pressed={fulfillmentType === "delivery"}
-            className={`rounded px-3 py-1 text-sm ${fulfillmentType === "delivery" ? "bg-black text-white" : "border"}`}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${fulfillmentType === "delivery" ? "bg-brand text-white" : "text-ink-soft hover:text-ink"}`}
           >
             Delivery
           </button>
         </div>
         {fulfillmentType === "delivery" ? (
-          <div className="space-y-2">
+          <div className="space-y-2 pt-1">
             <div>
               <label htmlFor="deliveryAddress" className="sr-only">
                 Delivery address
@@ -173,7 +173,7 @@ export function CheckoutForm({
                 placeholder="Delivery address"
                 value={deliveryAddress}
                 onChange={(e) => setDeliveryAddress(e.target.value)}
-                className="w-full rounded border px-3 py-2 text-sm"
+                className="input-field"
               />
             </div>
             <div>
@@ -186,7 +186,7 @@ export function CheckoutForm({
                 placeholder="City"
                 value={deliveryCity}
                 onChange={(e) => setDeliveryCity(e.target.value)}
-                className="w-full rounded border px-3 py-2 text-sm"
+                className="input-field"
               />
             </div>
             <div>
@@ -198,14 +198,14 @@ export function CheckoutForm({
                 placeholder="Delivery notes (optional)"
                 value={deliveryNotes}
                 onChange={(e) => setDeliveryNotes(e.target.value)}
-                className="w-full rounded border px-3 py-2 text-sm"
+                className="input-field"
               />
             </div>
           </div>
         ) : null}
 
-        <div>
-          <label htmlFor="requestedDate" className="block text-sm font-medium">
+        <div className="pt-1">
+          <label htmlFor="requestedDate" className="field-label mb-1.5">
             Requested date
           </label>
           <input
@@ -215,25 +215,26 @@ export function CheckoutForm({
             min={minDate}
             value={requestedDate}
             onChange={(e) => setRequestedDate(e.target.value)}
-            className="mt-1 rounded border px-3 py-2 text-sm"
+            className="input-field"
           />
-          <p className="mt-1 text-xs text-gray-500">Earliest available: {minDate}</p>
+          <p className="mt-1.5 text-xs text-ink-faint">Earliest available: {minDate}</p>
         </div>
       </fieldset>
 
       {allergens.length > 0 ? (
         <fieldset className="space-y-2">
-          <legend className="font-medium">Dietary requests (optional)</legend>
-          <p className="text-xs text-gray-500">
+          <legend className="field-label mb-1">Dietary requests (optional)</legend>
+          <p className="text-xs text-ink-faint">
             We&apos;ll review these with your order and confirm what we can accommodate.
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2">
             {allergens.map((a) => (
-              <label key={a.id} className="flex items-center gap-1 text-xs">
+              <label key={a.id} className="chip-option px-3 py-1.5 text-xs">
                 <input
                   type="checkbox"
                   checked={dietaryAllergenIds.includes(a.id)}
                   onChange={() => toggleAllergen(a.id)}
+                  className="sr-only"
                 />
                 No {a.label_i18n.en}
               </label>
@@ -243,7 +244,7 @@ export function CheckoutForm({
       ) : null}
 
       <div>
-        <label htmlFor="customerNote" className="block text-sm font-medium">
+        <label htmlFor="customerNote" className="field-label mb-1.5">
           Order note (optional)
         </label>
         <textarea
@@ -251,37 +252,38 @@ export function CheckoutForm({
           rows={2}
           value={customerNote}
           onChange={(e) => setCustomerNote(e.target.value)}
-          className="mt-1 w-full rounded border px-3 py-2 text-sm"
+          className="input-field"
         />
       </div>
 
-      <label className="flex items-start gap-2 text-sm">
+      <label className="flex items-start gap-2 text-sm text-ink-soft">
         <input
           type="checkbox"
           required
           checked={termsAccepted}
           onChange={(e) => setTermsAccepted(e.target.checked)}
+          className="mt-0.5"
         />
         I accept the{" "}
         <a
           href="/legal/terms-of-sale"
           target="_blank"
           rel="noopener noreferrer"
-          className="underline"
+          className="text-brand underline hover:text-brand-dark"
         >
           Terms of Sale
         </a>
       </label>
 
-      <p className="text-lg font-semibold">Total: {(subtotal / 100).toFixed(2)} €</p>
+      <div className="flex items-center justify-between border-t border-border-warm pt-6">
+        <p className="font-display text-xl font-semibold text-ink">
+          Total: {(subtotal / 100).toFixed(2)} €
+        </p>
+      </div>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-brand-dark">{error}</p> : null}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded bg-black px-4 py-2 text-sm text-white disabled:opacity-50"
-      >
+      <button type="submit" disabled={submitting} className="btn-primary w-full py-3">
         {submitting ? "Submitting..." : "Submit order request"}
       </button>
     </form>
