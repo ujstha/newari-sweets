@@ -20,23 +20,23 @@ export default async function AdminContentEditPage(
   const updateThisPage = updatePageContent.bind(null, key);
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
-      <h1 className="text-xl font-semibold">{PAGE_CONTENT_LABELS[key]}</h1>
+    <div className="max-w-2xl">
+      <h1 className="font-display text-2xl font-semibold text-ink">{PAGE_CONTENT_LABELS[key]}</h1>
 
       <form action={updateThisPage} className="mt-6 space-y-4">
-        <div className="space-y-1">
-          <label htmlFor="title" className="block text-sm font-medium">
+        <div>
+          <label htmlFor="title" className="field-label mb-1.5">
             Title
           </label>
           <input
             id="title"
             name="title"
             defaultValue={content.title_i18n.en ?? ""}
-            className="w-full rounded border px-3 py-2 text-sm"
+            className="input-field"
           />
         </div>
-        <div className="space-y-1">
-          <label htmlFor="body" className="block text-sm font-medium">
+        <div>
+          <label htmlFor="body" className="field-label mb-1.5">
             Body (markdown)
           </label>
           <textarea
@@ -44,13 +44,13 @@ export default async function AdminContentEditPage(
             name="body"
             rows={16}
             defaultValue={content.body_i18n.en ?? ""}
-            className="w-full rounded border px-3 py-2 font-mono text-sm"
+            className="input-field font-mono"
           />
         </div>
-        <button type="submit" className="rounded bg-black px-4 py-2 text-sm text-white">
+        <button type="submit" className="btn-primary px-4 py-2 text-sm">
           Save
         </button>
       </form>
-    </main>
+    </div>
   );
 }

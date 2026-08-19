@@ -56,9 +56,9 @@ export function ImageUploader({
 
   return (
     <div className="space-y-3">
-      <ul className="grid grid-cols-3 gap-2">
+      <ul className="grid grid-cols-3 gap-3">
         {images.map((image) => (
-          <li key={image.id} className="space-y-1">
+          <li key={image.id} className="space-y-1.5">
             {/* eslint-disable-next-line @next/next/no-img-element -- next/image's optimizer isn't
                 available on Cloudflare (images.unoptimized = true, see PLAN.md's Deployment
                 section), so next/image would add bundle weight for no benefit here. */}
@@ -68,16 +68,16 @@ export function ImageUploader({
                   .publicUrl
               }
               alt={image.alt_text}
-              className="aspect-square w-full rounded border object-cover"
+              className="aspect-square w-full rounded-xl border border-border-warm object-cover"
             />
-            <p className="truncate text-xs text-gray-500">
+            <p className="truncate text-xs text-ink-faint">
               {image.alt_text}
               {image.is_primary ? " (primary)" : ""}
             </p>
             <button
               type="button"
               onClick={() => deleteProductImage(productId, image.id, image.storage_path)}
-              className="text-xs text-red-600 underline"
+              className="text-xs font-medium text-brand hover:text-brand-dark"
             >
               Remove
             </button>
@@ -85,21 +85,21 @@ export function ImageUploader({
         ))}
       </ul>
 
-      <form onSubmit={handleUpload} className="space-y-2 rounded border p-3">
+      <form onSubmit={handleUpload} className="card-surface space-y-2.5 p-4">
         <input
           type="file"
           accept="image/*"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          className="text-sm"
+          className="text-sm text-ink-soft file:mr-3 file:rounded-full file:border-0 file:bg-brand-soft file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-brand-dark"
         />
         <input
           type="text"
           placeholder="Alt text (required)"
           value={altText}
           onChange={(e) => setAltText(e.target.value)}
-          className="w-full rounded border px-2 py-1 text-sm"
+          className="input-field py-1.5"
         />
-        <label className="flex items-center gap-1 text-xs">
+        <label className="flex items-center gap-1.5 text-xs text-ink-soft">
           <input
             type="checkbox"
             checked={isPrimary}
@@ -107,12 +107,8 @@ export function ImageUploader({
           />
           Primary (listing thumbnail)
         </label>
-        {error ? <p className="text-xs text-red-600">{error}</p> : null}
-        <button
-          type="submit"
-          disabled={isPending}
-          className="rounded bg-black px-3 py-1 text-xs text-white disabled:opacity-50"
-        >
+        {error ? <p className="text-xs text-brand-dark">{error}</p> : null}
+        <button type="submit" disabled={isPending} className="btn-primary px-4 py-1.5 text-xs">
           {isPending ? "Uploading..." : "Upload"}
         </button>
       </form>

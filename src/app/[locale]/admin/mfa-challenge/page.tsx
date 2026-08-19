@@ -31,36 +31,40 @@ export default async function MfaChallengePage(props: PageProps<"/[locale]/admin
   }
 
   return (
-    <main className="flex flex-1 items-center justify-center p-8">
-      <form action={verifyMfaChallenge} className="w-full max-w-sm space-y-4">
-        <input type="hidden" name="factorId" value={factor.id} />
-        <h1 className="text-xl font-semibold">Two-factor verification</h1>
-        <p className="text-sm text-gray-600">Enter the 6-digit code from your authenticator app.</p>
-        {errorMessage ? (
-          <p role="alert" className="text-sm text-red-600">
-            {errorMessage}
+    <main className="flex min-h-screen flex-1 items-center justify-center bg-cream px-4 py-14">
+      <div className="card-surface w-full max-w-sm p-8">
+        <form action={verifyMfaChallenge} className="space-y-4">
+          <input type="hidden" name="factorId" value={factor.id} />
+          <h1 className="font-display text-xl font-semibold text-ink">Two-factor verification</h1>
+          <p className="text-sm text-ink-soft">
+            Enter the 6-digit code from your authenticator app.
           </p>
-        ) : null}
-        <div className="space-y-1">
-          <label htmlFor="code" className="block text-sm font-medium">
-            Code
-          </label>
-          <input
-            id="code"
-            name="code"
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]{6}"
-            maxLength={6}
-            required
-            autoComplete="one-time-code"
-            className="w-full rounded border px-3 py-2"
-          />
-        </div>
-        <button type="submit" className="w-full rounded bg-black px-3 py-2 text-white">
-          Verify
-        </button>
-      </form>
+          {errorMessage ? (
+            <p role="alert" className="text-sm text-brand-dark">
+              {errorMessage}
+            </p>
+          ) : null}
+          <div>
+            <label htmlFor="code" className="field-label mb-1.5">
+              Code
+            </label>
+            <input
+              id="code"
+              name="code"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]{6}"
+              maxLength={6}
+              required
+              autoComplete="one-time-code"
+              className="input-field"
+            />
+          </div>
+          <button type="submit" className="btn-primary w-full py-2.5">
+            Verify
+          </button>
+        </form>
+      </div>
     </main>
   );
 }

@@ -85,7 +85,7 @@ export function MfaManager() {
   }
 
   if (factors === null) {
-    return <p className="text-sm text-gray-600">Loading...</p>;
+    return <p className="text-sm text-ink-soft">Loading...</p>;
   }
 
   const verified = factors.filter((f) => f.status === "verified");
@@ -93,7 +93,7 @@ export function MfaManager() {
   return (
     <div className="space-y-4">
       {error ? (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-brand-dark">
           {error}
         </p>
       ) : null}
@@ -101,13 +101,15 @@ export function MfaManager() {
       {verified.length > 0 ? (
         <ul className="space-y-2">
           {verified.map((f) => (
-            <li key={f.id} className="flex items-center justify-between rounded border p-3 text-sm">
-              <span>Authenticator app ({f.friendly_name || f.id.slice(0, 8)})</span>
+            <li key={f.id} className="card-surface flex items-center justify-between p-4 text-sm">
+              <span className="text-ink">
+                Authenticator app ({f.friendly_name || f.id.slice(0, 8)})
+              </span>
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => unenroll(f.id)}
-                className="text-red-600 underline disabled:opacity-50"
+                className="text-sm font-medium text-brand hover:text-brand-dark disabled:opacity-50"
               >
                 Remove
               </button>
@@ -115,23 +117,23 @@ export function MfaManager() {
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-ink-soft">
           No authenticator app enrolled yet. Enrolling adds a required second step at sign-in.
         </p>
       )}
 
       {enrolling ? (
-        <div className="space-y-3 rounded border p-4">
-          <p className="text-sm">
+        <div className="card-surface space-y-3 p-4">
+          <p className="text-sm text-ink-soft">
             Scan this QR code with an authenticator app, then enter the code it shows.
           </p>
           <div
-            className="h-48 w-48"
+            className="h-48 w-48 rounded-xl bg-white p-2"
             // Supabase returns a trusted, server-generated QR SVG for the enrollment
             // it just created -- not arbitrary/user-supplied content.
             dangerouslySetInnerHTML={{ __html: enrolling.qrSvg }}
           />
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-ink-faint">
             Can&apos;t scan? Enter this key manually: <code>{enrolling.secret}</code>
           </p>
           <div className="flex gap-2">
@@ -142,25 +144,20 @@ export function MfaManager() {
               pattern="[0-9]{6}"
               maxLength={6}
               placeholder="6-digit code"
-              className="flex-1 rounded border px-3 py-2 text-sm"
+              className="input-field flex-1"
             />
             <button
               type="button"
               disabled={busy || code.length !== 6}
               onClick={confirmEnroll}
-              className="rounded bg-black px-3 py-2 text-sm text-white disabled:opacity-50"
+              className="btn-primary px-4"
             >
               Confirm
             </button>
           </div>
         </div>
       ) : (
-        <button
-          type="button"
-          disabled={busy}
-          onClick={startEnroll}
-          className="rounded bg-black px-3 py-2 text-sm text-white disabled:opacity-50"
-        >
+        <button type="button" disabled={busy} onClick={startEnroll} className="btn-primary">
           Add authenticator app
         </button>
       )}

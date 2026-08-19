@@ -6,7 +6,7 @@ import { useCart } from "@/lib/cart/CartContext";
 import { cartLeadDays, earliestRequestedDate } from "@/lib/domain/lead-time";
 import { computeOrderSubtotal } from "@/lib/domain/pricing";
 import type { Allergen } from "@/lib/content/catalog-master-data";
-import { submitOrder } from "@/app/[locale]/checkout/actions";
+import { submitOrder } from "@/app/[locale]/(storefront)/checkout/actions";
 
 export function CheckoutForm({
   siteDefaultLeadDays,

@@ -10,18 +10,18 @@ export default async function NewProductPage() {
   ]);
 
   return (
-    <main className="mx-auto max-w-xl p-8">
-      <h1 className="text-xl font-semibold">New product</h1>
-      <p className="mt-1 text-sm text-gray-600">
+    <div className="max-w-xl">
+      <h1 className="font-display text-2xl font-semibold text-ink">New product</h1>
+      <p className="mt-1 text-sm text-ink-soft">
         Save first, then add options and photos on the next screen.
       </p>
 
       <form action={createProduct} className="mt-6 space-y-4">
         <ProductBasicFields categories={categories} units={units} allergens={allergens} />
-        <button type="submit" className="rounded bg-black px-4 py-2 text-sm text-white">
+        <button type="submit" className="btn-primary px-4 py-2 text-sm">
           Save and continue
         </button>
       </form>
-    </main>
+    </div>
   );
 }

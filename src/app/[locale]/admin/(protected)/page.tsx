@@ -1,54 +1,33 @@
 import { Link } from "@/i18n/navigation";
-import { signOut } from "../actions";
+
+const QUICK_LINKS = [
+  { href: "/admin/orders", label: "Orders", desc: "Review and approve incoming order requests" },
+  { href: "/admin/products", label: "Products", desc: "Manage the catalog, options, and images" },
+  {
+    href: "/admin/settings",
+    label: "Site content",
+    desc: "Business info, hero, announcement banner",
+  },
+] as const;
 
 export default function AdminDashboardPage() {
   return (
-    <main className="p-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Admin</h1>
-        <form action={signOut}>
-          <button type="submit" className="text-sm underline">
-            Sign out
-          </button>
-        </form>
+    <div>
+      <h1 className="font-display text-2xl font-semibold text-ink">Admin</h1>
+      <p className="mt-1 text-sm text-ink-soft">Manage orders, catalog, and site content.</p>
+
+      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+        {QUICK_LINKS.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className="card-surface p-5 transition-shadow hover:shadow-md"
+          >
+            <p className="font-display text-base font-medium text-ink">{link.label}</p>
+            <p className="mt-1 text-sm text-ink-soft">{link.desc}</p>
+          </Link>
+        ))}
       </div>
-      <ul className="mt-6 space-y-2">
-        <li>
-          <Link href="/admin/settings" className="text-sm underline">
-            Site content (business info, hero, banner)
-          </Link>
-        </li>
-        <li>
-          <Link href="/admin/content" className="text-sm underline">
-            Pages (about, legal)
-          </Link>
-        </li>
-        <li>
-          <Link href="/admin/categories" className="text-sm underline">
-            Categories
-          </Link>
-        </li>
-        <li>
-          <Link href="/admin/ingredients" className="text-sm underline">
-            Ingredients
-          </Link>
-        </li>
-        <li>
-          <Link href="/admin/products" className="text-sm underline">
-            Products
-          </Link>
-        </li>
-        <li>
-          <Link href="/admin/orders" className="text-sm underline">
-            Orders
-          </Link>
-        </li>
-        <li>
-          <Link href="/admin/security" className="text-sm underline">
-            Security (two-factor auth)
-          </Link>
-        </li>
-      </ul>
-    </main>
+    </div>
   );
 }
