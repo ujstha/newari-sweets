@@ -5,15 +5,15 @@ export default async function AdminSettingsPage() {
   const settings = await getSiteSettings();
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
-      <h1 className="text-xl font-semibold">Site content</h1>
-      <p className="mt-1 text-sm text-gray-600">
+    <div className="max-w-2xl">
+      <h1 className="font-display text-2xl font-semibold text-ink">Site content</h1>
+      <p className="mt-1 text-sm text-ink-soft">
         Business info, homepage hero, and the announcement banner. English only for now.
       </p>
 
       <form action={updateSiteSettings} className="mt-6 space-y-6">
         <fieldset className="space-y-3">
-          <legend className="font-medium">Business info</legend>
+          <legend className="field-label mb-1">Business info</legend>
           <Field label="Business name" name="business_name" defaultValue={settings.business_name} />
           <Field
             label="Contact email"
@@ -44,7 +44,7 @@ export default async function AdminSettingsPage() {
         </fieldset>
 
         <fieldset className="space-y-3">
-          <legend className="font-medium">Homepage hero</legend>
+          <legend className="field-label mb-1">Homepage hero</legend>
           <Field
             label="Heading"
             name="hero_heading"
@@ -64,8 +64,8 @@ export default async function AdminSettingsPage() {
         </fieldset>
 
         <fieldset className="space-y-3">
-          <legend className="font-medium">Announcement banner</legend>
-          <label className="flex items-center gap-2 text-sm">
+          <legend className="field-label mb-1">Announcement banner</legend>
+          <label className="flex items-center gap-2 text-sm text-ink-soft">
             <input
               type="checkbox"
               name="announcement_active"
@@ -82,7 +82,7 @@ export default async function AdminSettingsPage() {
         </fieldset>
 
         <fieldset className="space-y-3">
-          <legend className="font-medium">Ordering</legend>
+          <legend className="field-label mb-1">Ordering</legend>
           <Field
             label="Default minimum prep days"
             name="default_min_prep_days"
@@ -92,11 +92,11 @@ export default async function AdminSettingsPage() {
           />
         </fieldset>
 
-        <button type="submit" className="rounded bg-black px-4 py-2 text-sm text-white">
+        <button type="submit" className="btn-primary px-4 py-2 text-sm">
           Save
         </button>
       </form>
-    </main>
+    </div>
   );
 }
 
@@ -116,8 +116,8 @@ function Field({
   min?: number;
 }) {
   return (
-    <div className="space-y-1">
-      <label htmlFor={name} className="block text-sm font-medium">
+    <div>
+      <label htmlFor={name} className="field-label mb-1.5">
         {label}
       </label>
       <input
@@ -127,7 +127,7 @@ function Field({
         defaultValue={defaultValue}
         placeholder={placeholder}
         min={min}
-        className="w-full rounded border px-3 py-2 text-sm"
+        className="input-field"
       />
     </div>
   );

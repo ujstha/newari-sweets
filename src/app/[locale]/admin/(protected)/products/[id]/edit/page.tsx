@@ -31,9 +31,9 @@ export default async function EditProductPage(
   const updateThis = updateProduct.bind(null, id);
 
   return (
-    <main className="mx-auto max-w-2xl space-y-10 p-8">
+    <div className="max-w-2xl space-y-10">
       <div>
-        <h1 className="text-xl font-semibold">Edit product</h1>
+        <h1 className="font-display text-2xl font-semibold text-ink">Edit product</h1>
         <form action={updateThis} className="mt-6 space-y-4">
           <ProductBasicFields
             categories={categories}
@@ -41,21 +41,21 @@ export default async function EditProductPage(
             allergens={allergens}
             product={product}
           />
-          <button type="submit" className="rounded bg-black px-4 py-2 text-sm text-white">
+          <button type="submit" className="btn-primary px-4 py-2 text-sm">
             Save
           </button>
         </form>
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold">Photos</h2>
+        <h2 className="font-display text-lg font-semibold text-ink">Photos</h2>
         <div className="mt-4">
           <ImageUploader productId={id} images={product.images} />
         </div>
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold">Options</h2>
+        <h2 className="font-display text-lg font-semibold text-ink">Options</h2>
         <div className="mt-4">
           <OptionGroupEditor
             productId={id}
@@ -65,6 +65,6 @@ export default async function EditProductPage(
           />
         </div>
       </div>
-    </main>
+    </div>
   );
 }
