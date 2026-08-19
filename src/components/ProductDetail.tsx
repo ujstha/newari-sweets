@@ -111,19 +111,21 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
   }
 
   return (
-    <main className="mx-auto max-w-3xl p-8">
-      <div className="grid gap-8 sm:grid-cols-2">
+    <main className="mx-auto max-w-5xl px-4 py-10 sm:px-8 sm:py-14">
+      <div className="grid gap-10 sm:grid-cols-2 sm:gap-14">
         <div>
           {product.images.length > 0 ? (
             <>
-              {/* eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section (no optimizer on Cloudflare) */}
-              <img
-                src={getPublicImageUrl(product.images[activeImage].storage_path)}
-                alt={product.images[activeImage].alt_text}
-                className="aspect-square w-full rounded object-cover"
-              />
+              <div className="aspect-square overflow-hidden rounded-2xl bg-brand-soft">
+                {/* eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section (no optimizer on Cloudflare) */}
+                <img
+                  src={getPublicImageUrl(product.images[activeImage].storage_path)}
+                  alt={product.images[activeImage].alt_text}
+                  className="h-full w-full object-cover"
+                />
+              </div>
               {product.images.length > 1 ? (
-                <div className="mt-2 flex gap-2">
+                <div className="mt-3 flex gap-2">
                   {product.images.map((image, i) => (
                     <button
                       key={image.storage_path}
@@ -131,13 +133,13 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
                       onClick={() => setActiveImage(i)}
                       aria-current={i === activeImage}
                       aria-label={`Show image ${i + 1} of ${product.images.length}`}
-                      className={`rounded ${i === activeImage ? "ring-2 ring-black" : ""}`}
+                      className={`overflow-hidden rounded-xl ring-2 ring-offset-2 ring-offset-cream transition-colors ${i === activeImage ? "ring-brand" : "ring-transparent"}`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section */}
                       <img
                         src={getPublicImageUrl(image.storage_path)}
                         alt=""
-                        className="h-16 w-16 rounded object-cover"
+                        className="h-16 w-16 object-cover"
                       />
                     </button>
                   ))}
@@ -145,43 +147,58 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
               ) : null}
             </>
           ) : (
-            <div className="aspect-square w-full rounded bg-gray-100" />
+            <div className="aspect-square rounded-2xl bg-brand-soft" />
           )}
         </div>
 
         <div>
-          <h1 className="text-2xl font-semibold">{product.name_i18n.en}</h1>
+          <h1 className="font-display text-3xl font-semibold text-ink">{product.name_i18n.en}</h1>
           {product.highlight_note_i18n.en ? (
-            <p className="mt-1 rounded bg-amber-100 px-2 py-1 text-xs text-amber-900">
+            <p className="mt-2 inline-block rounded-full bg-gold-soft px-3 py-1 text-xs font-medium text-ink-soft">
               {product.highlight_note_i18n.en}
             </p>
           ) : null}
           {product.description_i18n.en ? (
-            <p className="mt-2 text-sm text-gray-600">{product.description_i18n.en}</p>
+            <p className="mt-3 text-sm leading-relaxed text-ink-soft">
+              {product.description_i18n.en}
+            </p>
           ) : null}
           {product.min_prep_days != null ? (
-            <p className="mt-2 text-xs text-gray-500">
+            <p className="mt-3 flex items-center gap-1.5 text-xs text-ink-faint">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
+                <path
+                  d="M12 7v5l3 3"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
               Requires at least {product.min_prep_days} day{product.min_prep_days === 1 ? "" : "s"}{" "}
               notice
             </p>
           ) : null}
 
           {allergens.length > 0 ? (
-            <div className="mt-3 flex flex-wrap gap-1">
+            <div className="mt-4 flex flex-wrap gap-1.5">
               {allergens.map((a) => (
-                <span key={a.id} className="rounded bg-red-50 px-2 py-0.5 text-xs text-red-700">
-                  {a.code}
+                <span
+                  key={a.id}
+                  className="rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-medium text-brand-dark capitalize"
+                >
+                  {a.code.replace("_", " ")}
                 </span>
               ))}
             </div>
           ) : null}
 
-          <div className="mt-4 flex gap-2">
+          <div className="mt-6 inline-flex rounded-full border border-border-warm bg-surface p-1">
             <button
               type="button"
               onClick={() => setMode("quick")}
               aria-pressed={mode === "quick"}
-              className={`rounded px-3 py-1 text-sm ${mode === "quick" ? "bg-black text-white" : "border"}`}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${mode === "quick" ? "bg-brand text-white" : "text-ink-soft hover:text-ink"}`}
             >
               Order as pictured
             </button>
@@ -189,28 +206,29 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
               type="button"
               onClick={() => setMode("customize")}
               aria-pressed={mode === "customize"}
-              className={`rounded px-3 py-1 text-sm ${mode === "customize" ? "bg-black text-white" : "border"}`}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${mode === "customize" ? "bg-brand text-white" : "text-ink-soft hover:text-ink"}`}
             >
               Customize
             </button>
           </div>
 
           {mode === "customize" ? (
-            <div className="mt-4 space-y-4">
+            <div className="mt-6 space-y-5">
               {product.option_groups.map((group) => (
                 <fieldset key={group.id}>
-                  <legend className="text-sm font-medium">
+                  <legend className="field-label mb-2">
                     {group.name}
                     {group.is_required ? " *" : ""}
                   </legend>
-                  <div className="mt-1 space-y-1">
+                  <div className="flex flex-wrap gap-2">
                     {group.option_values.map((value) => (
-                      <label key={value.id} className="flex items-center gap-2 text-sm">
+                      <label key={value.id} className="chip-option">
                         <input
                           type={group.selection_type === "single" ? "radio" : "checkbox"}
                           name={group.id}
                           checked={selected[group.id]?.includes(value.id) ?? false}
                           onChange={() => toggleValue(group.id, value.id, group.selection_type)}
+                          className="sr-only"
                         />
                         {value.label}
                         {value.price_delta_cents !== 0
@@ -223,7 +241,7 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
               ))}
 
               <div>
-                <label htmlFor="customNote" className="block text-sm font-medium">
+                <label htmlFor="customNote" className="field-label mb-1.5">
                   Note (optional)
                 </label>
                 <textarea
@@ -231,13 +249,13 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
                   value={customNote}
                   onChange={(e) => setCustomNote(e.target.value)}
                   rows={2}
-                  className="mt-1 w-full rounded border px-2 py-1 text-sm"
+                  className="input-field"
                 />
               </div>
 
               {product.supports_message ? (
                 <div>
-                  <label htmlFor="cakeMessage" className="block text-sm font-medium">
+                  <label htmlFor="cakeMessage" className="field-label mb-1.5">
                     Message on the cake (optional, free)
                   </label>
                   <input
@@ -245,15 +263,15 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
                     value={cakeMessage}
                     onChange={(e) => setCakeMessage(e.target.value)}
                     placeholder="e.g. Happy Birthday Maya"
-                    className="mt-1 w-full rounded border px-2 py-1 text-sm"
+                    className="input-field"
                   />
                 </div>
               ) : null}
             </div>
           ) : null}
 
-          <div className="mt-4 flex items-center gap-2">
-            <label htmlFor="quantity" className="text-sm font-medium">
+          <div className="mt-6 flex items-center gap-3">
+            <label htmlFor="quantity" className="field-label">
               Quantity ({product.unit.code})
             </label>
             <input
@@ -263,18 +281,16 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
               step={product.unit.default_step}
               value={quantity}
               onChange={(e) => setQuantity(Number(e.target.value) || product.unit.default_step)}
-              className="w-20 rounded border px-2 py-1 text-sm"
+              className="input-field w-24"
             />
           </div>
 
-          <p className="mt-4 text-lg font-semibold">{(price.lineTotalCents / 100).toFixed(2)} €</p>
+          <p className="mt-5 font-display text-2xl font-semibold text-brand">
+            {(price.lineTotalCents / 100).toFixed(2)} €
+          </p>
 
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            className="mt-2 w-full rounded bg-black px-4 py-2 text-sm text-white"
-          >
-            {added ? "Added!" : "Add to cart"}
+          <button type="button" onClick={handleAddToCart} className="btn-primary mt-3 w-full py-3">
+            {added ? "Added to cart ✓" : "Add to cart"}
           </button>
         </div>
       </div>

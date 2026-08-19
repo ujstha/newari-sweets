@@ -14,14 +14,14 @@ export async function PageContentBody({ contentKey }: { contentKey: PageContentK
   const body = pickLocalized(content.body_i18n, locale);
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
-      {title ? <h1 className="text-2xl font-semibold">{title}</h1> : null}
+    <main className="mx-auto max-w-2xl px-4 py-10 sm:px-8 sm:py-14">
+      {title ? <h1 className="font-display text-3xl font-semibold text-ink">{title}</h1> : null}
       {body ? (
-        <div className="mt-4 space-y-4 text-sm leading-relaxed text-gray-800">
+        <div className="mt-4 space-y-4 text-sm leading-relaxed text-ink-soft">
           <Markdown>{body}</Markdown>
         </div>
       ) : (
-        <p className="mt-4 text-sm text-gray-600">This page hasn&apos;t been written yet.</p>
+        <p className="mt-4 text-sm text-ink-soft">This page hasn&apos;t been written yet.</p>
       )}
     </main>
   );
