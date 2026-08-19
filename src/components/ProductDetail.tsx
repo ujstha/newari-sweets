@@ -6,6 +6,7 @@ import { computeLinePrice } from "@/lib/domain/pricing";
 import { computeDisplayedAllergens } from "@/lib/domain/ingredients";
 import type { CatalogProductDetail } from "@/lib/content/public-catalog";
 import { getPublicImageUrl } from "@/lib/content/image-url";
+import { QuantityStepper } from "@/components/QuantityStepper";
 
 function defaultSelections(groups: CatalogProductDetail["option_groups"]) {
   const sel: Record<string, string[]> = {};
@@ -271,17 +272,13 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
           ) : null}
 
           <div className="mt-6 flex items-center gap-3">
-            <label htmlFor="quantity" className="field-label">
-              Quantity ({product.unit.code})
-            </label>
-            <input
-              id="quantity"
-              type="number"
+            <p className="field-label">Quantity ({product.unit.code})</p>
+            <QuantityStepper
+              value={quantity}
+              onChange={setQuantity}
               min={product.unit.default_step}
               step={product.unit.default_step}
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value) || product.unit.default_step)}
-              className="input-field w-24"
+              ariaLabel={product.name_i18n.en ?? "product"}
             />
           </div>
 
