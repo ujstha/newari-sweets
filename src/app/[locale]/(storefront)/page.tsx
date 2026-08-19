@@ -2,16 +2,65 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { getSiteSettings } from "@/lib/content/site-settings";
 import { getPageContent } from "@/lib/content/page-content";
 import { pickLocalized } from "@/lib/domain/i18n-content";
-import { getFeaturedProducts, getBestSellingProducts } from "@/lib/content/public-catalog";
+import {
+  getActiveProducts,
+  getFeaturedProducts,
+  getBestSellingProducts,
+} from "@/lib/content/public-catalog";
+import { getPublicImageUrl } from "@/lib/content/image-url";
 import { Link } from "@/i18n/navigation";
 import { ProductGrid } from "@/components/ProductGrid";
+
+const VALUE_PROPS = [
+  {
+    title: "Handmade to order",
+    body: "Small batches, made fresh -- not sitting in a display case.",
+    icon: (
+      <path
+        d="M12 3v3m0 12v3M5 12H2m20 0h-3m-1.6-6.4L15 8m-6 8 2.4-2.4M6.4 6.4 9 9m6 6 2.6 2.6"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    ),
+  },
+  {
+    title: "Pickup or delivery",
+    body: "Local delivery or pickup, arranged directly with you.",
+    icon: (
+      <path
+        d="M3 7h11v9H3zm11 3h4l3 3v3h-7zM6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm12 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    ),
+  },
+  {
+    title: "Order ahead",
+    body: "Most items need a little notice -- check the product page for lead time.",
+    icon: (
+      <>
+        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
+        <path
+          d="M12 7v5l3 3"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </>
+    ),
+  },
+];
 
 export default async function HomePage() {
   const t = await getTranslations("HomePage");
   const locale = await getLocale();
-  const [settings, about, featured, bestSellers] = await Promise.all([
+  const [settings, about, allProducts, featured, bestSellers] = await Promise.all([
     getSiteSettings(),
     getPageContent("about"),
+    getActiveProducts(),
     getFeaturedProducts(),
     getBestSellingProducts(),
   ]);
@@ -20,34 +69,97 @@ export default async function HomePage() {
   const subtext = pickLocalized(settings.hero_subtext_i18n, locale);
   const aboutBody = pickLocalized(about.body_i18n, locale);
 
+  const heroImage =
+    settings.hero_image_url || featured[0]?.primary_image_path
+      ? settings.hero_image_url || getPublicImageUrl(featured[0].primary_image_path!)
+      : null;
+
+  const categories = [...new Map(allProducts.map((p) => [p.category.slug, p.category])).values()];
+
   return (
     <main>
       <section className="relative overflow-hidden border-b border-border-warm bg-gradient-to-b from-brand-soft/60 to-cream">
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-5 px-4 py-20 text-center sm:px-8 sm:py-28">
-          <span className="rounded-full border border-gold/40 bg-gold-soft px-3 py-1 text-xs font-medium tracking-wide text-ink-soft uppercase">
-            Handmade in Helsinki
-          </span>
-          <h1 className="font-display text-4xl leading-tight font-semibold text-ink sm:text-5xl">
-            {heading}
-          </h1>
-          {subtext ? (
-            <p className="max-w-xl text-base text-ink-soft sm:text-lg">{subtext}</p>
-          ) : null}
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
-            <Link href="/products" className="btn-primary">
-              Browse the shop
-            </Link>
-            <Link href="/checkout" className="btn-secondary">
-              Order a custom cake
-            </Link>
+        <div className="mx-auto grid max-w-5xl items-center gap-10 px-4 py-16 sm:px-8 sm:py-24 md:grid-cols-2 md:gap-14">
+          <div className="flex flex-col items-center gap-5 text-center md:items-start md:text-left">
+            <span className="rounded-full border border-gold/40 bg-gold-soft px-3 py-1 text-xs font-medium tracking-wide text-ink-soft uppercase">
+              Handmade in Helsinki
+            </span>
+            <h1 className="font-display text-4xl leading-tight font-semibold text-ink sm:text-5xl">
+              {heading}
+            </h1>
+            {subtext ? (
+              <p className="max-w-xl text-base text-ink-soft sm:text-lg">{subtext}</p>
+            ) : null}
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-3 md:justify-start">
+              <Link href="/products" className="btn-primary">
+                Browse the shop
+              </Link>
+              <Link href={{ pathname: "/products", hash: "cakes" }} className="btn-secondary">
+                Order a custom cake
+              </Link>
+            </div>
           </div>
-          {aboutBody ? <p className="mt-6 max-w-2xl text-sm text-ink-soft">{aboutBody}</p> : null}
+
+          {heroImage ? (
+            <div className="order-first aspect-4/3 overflow-hidden rounded-2xl shadow-lg md:order-last">
+              {/* eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section (no optimizer on Cloudflare) */}
+              <img src={heroImage} alt="" className="h-full w-full object-cover" />
+            </div>
+          ) : null}
         </div>
+
+        {categories.length > 1 ? (
+          <div className="border-t border-border-warm/60">
+            <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-2 px-4 py-3 sm:justify-start sm:px-8">
+              <span className="text-xs font-medium tracking-wide text-ink-faint uppercase">
+                Shop by category
+              </span>
+              {categories.map((category) => (
+                <Link
+                  key={category.slug}
+                  href={{ pathname: "/products", hash: category.slug }}
+                  className="rounded-full bg-surface px-3 py-1 text-xs font-medium text-ink-soft transition-colors hover:bg-brand-soft hover:text-brand-dark"
+                >
+                  {category.name_i18n.en}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </section>
 
-      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-8">
+      <div className="mx-auto max-w-5xl px-4 sm:px-8">
+        <div className="grid gap-6 py-10 sm:grid-cols-3 sm:py-14">
+          {VALUE_PROPS.map((item) => (
+            <div
+              key={item.title}
+              className="flex flex-col items-center gap-2 text-center sm:items-start sm:text-left"
+            >
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                className="text-brand"
+                aria-hidden="true"
+              >
+                {item.icon}
+              </svg>
+              <p className="font-display text-base font-medium text-ink">{item.title}</p>
+              <p className="text-sm text-ink-soft">{item.body}</p>
+            </div>
+          ))}
+        </div>
+
+        {aboutBody ? (
+          <section className="border-t border-border-warm py-10 sm:py-14">
+            <h2 className="font-display text-2xl font-semibold text-ink">About</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-soft">{aboutBody}</p>
+          </section>
+        ) : null}
+
         {featured.length > 0 ? (
-          <section>
+          <section className="border-t border-border-warm py-10 sm:py-14">
             <div className="flex items-baseline justify-between">
               <h2 className="font-display text-2xl font-semibold text-ink">Featured</h2>
               <Link
@@ -64,7 +176,7 @@ export default async function HomePage() {
         ) : null}
 
         {bestSellers.length > 0 ? (
-          <section className="mt-14">
+          <section className="border-t border-border-warm py-10 sm:py-14">
             <h2 className="font-display text-2xl font-semibold text-ink">Best Sellers</h2>
             <div className="mt-5">
               <ProductGrid products={bestSellers} />

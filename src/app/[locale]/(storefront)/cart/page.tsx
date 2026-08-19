@@ -4,6 +4,17 @@ import { Link } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart/CartContext";
 import { computeOrderSubtotal } from "@/lib/domain/pricing";
 import { getPublicImageUrl } from "@/lib/content/image-url";
+import { QuantityStepper } from "@/components/QuantityStepper";
+
+// Cart items only carry the unit's display label, not its default step size
+// (that lives on the product, already left behind at add-to-cart time) --
+// this mirrors the same defaults the units master list seeds (see
+// PLAN.md's Catalog & Content table), close enough for a +/- nudge here.
+function stepForUnit(unitLabel: string) {
+  if (unitLabel === "kg") return 0.5;
+  if (unitLabel === "g") return 50;
+  return 1;
+}
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity } = useCart();
@@ -60,13 +71,12 @@ export default function CartPage() {
                 <p className="mt-0.5 text-xs text-ink-soft">Note: {item.customNote}</p>
               ) : null}
               <div className="mt-2 flex items-center gap-3">
-                <input
-                  type="number"
-                  min={0}
+                <QuantityStepper
                   value={item.quantity}
-                  onChange={(e) => updateQuantity(item.id, Number(e.target.value) || 0)}
-                  aria-label={`Quantity for ${item.name}`}
-                  className="input-field w-16 px-2 py-1 text-xs"
+                  onChange={(next) => updateQuantity(item.id, next)}
+                  min={0}
+                  step={stepForUnit(item.unitLabel)}
+                  ariaLabel={item.name}
                 />
                 <span className="text-xs text-ink-faint">{item.unitLabel}</span>
                 <button

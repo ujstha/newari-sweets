@@ -18,7 +18,7 @@ export default async function ProductsPage() {
       <h1 className="font-display text-3xl font-semibold text-ink">Shop</h1>
 
       {[...byCategory.entries()].map(([categorySlug, categoryProducts]) => (
-        <section key={categorySlug} className="mt-10">
+        <section key={categorySlug} id={categorySlug} className="mt-10 scroll-mt-24">
           <h2 className="font-display text-xl font-semibold text-ink">
             {categoryProducts[0].category.name_i18n.en}
           </h2>
