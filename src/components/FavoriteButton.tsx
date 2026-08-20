@@ -38,7 +38,7 @@ export function FavoriteButton({
         strokeWidth="1.75"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={favorited ? "text-brand" : "text-ink-soft"}
+        className={favorited ? "text-pop-pink" : "text-ink-soft"}
       >
         <path d="M12 21s-7.5-4.7-10-9.3C.4 8.2 2 4.5 5.6 4c2-.3 3.9.7 6.4 3.4C14.5 4.7 16.4 3.7 18.4 4c3.6.5 5.2 4.2 3.6 7.7C19.5 16.3 12 21 12 21Z" />
       </svg>

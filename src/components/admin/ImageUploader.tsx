@@ -104,6 +104,7 @@ export function ImageUploader({
             type="checkbox"
             checked={isPrimary}
             onChange={(e) => setIsPrimary(e.target.checked)}
+            className="checkbox-field"
           />
           Primary (listing thumbnail)
         </label>

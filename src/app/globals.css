@@ -18,8 +18,22 @@
   --color-gold-soft: #f7ecd6;
   --color-border-warm: #e9dcc8;
 
+  /* Gurans pink (rhododendron -- Nepal's national flower): the one bold
+     accent color, used deliberately and sparingly -- merchandising badges
+     ("Popular"), the promo band, favorited-heart state, and the busiest
+     interactive control on the product page. Never a base/background
+     color. See docs/design-examples's canvas exploration for the full
+     reasoning. */
+  --color-pop-pink: #e23670;
+  --color-pop-pink-dark: #b8265a;
+  --color-pop-pink-soft: #fce0ea;
+
   --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  /* Bold accent face -- scoped to the homepage hero's promo band and the
+     OG/social-share image only. Not a general second typeface: everywhere
+     else keeps --font-display/--font-sans. */
+  --font-pop: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
@@ -54,6 +68,31 @@ body {
   }
   .chip-option {
     @apply cursor-pointer rounded-xl border border-border-warm bg-surface px-3.5 py-2.5 text-sm text-ink transition-colors has-[:checked]:border-brand has-[:checked]:bg-brand-soft has-[:checked]:text-brand-dark has-[:focus-visible]:ring-1 has-[:focus-visible]:ring-brand;
+  }
+
+  /* Merchandising badge tier: gold = curated ("Featured"), pink = computed
+     popularity ("Popular"/bestseller). Two tiers, two colors, each with a
+     real meaning -- not decoration. */
+  .badge-featured {
+    @apply rounded-full bg-gold px-2.5 py-0.5 text-xs font-medium text-ink shadow-sm;
+  }
+  .badge-popular {
+    @apply rounded-full bg-pop-pink px-2.5 py-0.5 text-xs font-medium text-white shadow-sm;
+  }
+
+  /* Category/filter pill -- the Fcodly-style functional filter bar reused
+     on the homepage category row and the product listing page. */
+  .pill-filter {
+    @apply rounded-full border border-border-warm bg-surface px-3.5 py-1.5 text-xs font-medium whitespace-nowrap text-ink-soft transition-colors hover:bg-brand-soft hover:text-brand-dark;
+  }
+  .pill-filter-active {
+    @apply rounded-full border border-pop-pink bg-pop-pink px-3.5 py-1.5 text-xs font-medium whitespace-nowrap text-white;
+  }
+
+  /* Sticky live order-summary panel -- cart/checkout's running total,
+     right-hand rail on desktop. */
+  .order-summary-panel {
+    @apply rounded-2xl border border-border-warm bg-surface p-6;
   }
 
   /* Custom-drawn checkbox/radio -- appearance-none strips the native box but

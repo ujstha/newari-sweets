@@ -41,6 +41,53 @@ const STATUS_TONE: Record<string, string> = {
   cancelled: "bg-ink/5 text-ink-soft",
 };
 
+// The happy-path workflow only -- declined/cancelled are terminal exits,
+// not further steps on this line, so the stepper only renders for statuses
+// that are actually progressing along it.
+const STEPS = [
+  { status: "pending_review", label: "Pending review" },
+  { status: "approved", label: "Approved" },
+  { status: "ready", label: "Ready" },
+  { status: "completed", label: "Completed" },
+] as const;
+
+function StatusStepper({ status }: { status: string }) {
+  const currentIndex = STEPS.findIndex((s) => s.status === status);
+  if (currentIndex === -1) return null;
+
+  return (
+    <div className="mt-8 flex items-center">
+      {STEPS.map((step, i) => (
+        <div key={step.status} className="flex flex-1 items-center last:flex-none">
+          <div className="flex flex-col items-center">
+            <span
+              className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
+                i < currentIndex
+                  ? "bg-brand text-white"
+                  : i === currentIndex
+                    ? "border-2 border-gold bg-gold-soft text-ink"
+                    : "border-2 border-border-warm bg-surface text-ink-faint"
+              }`}
+            >
+              {i + 1}
+            </span>
+            <span
+              className={`mt-1.5 text-center text-[11px] font-medium ${i <= currentIndex ? "text-ink" : "text-ink-faint"}`}
+            >
+              {step.label}
+            </span>
+          </div>
+          {i < STEPS.length - 1 ? (
+            <span
+              className={`mb-4 h-0.5 flex-1 ${i < currentIndex ? "bg-gold" : "bg-border-warm"}`}
+            />
+          ) : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default async function OrderStatusPage(props: PageProps<"/[locale]/orders/[orderId]">) {
   const { orderId } = await props.params;
 
@@ -60,6 +107,8 @@ export default async function OrderStatusPage(props: PageProps<"/[locale]/orders
       >
         {STATUS_LABELS[order.status] ?? order.status}
       </span>
+
+      <StatusStepper status={order.status} />
 
       {order.decision_reason ? (
         <p className="mt-4 rounded-xl bg-gold-soft p-4 text-sm text-ink-soft">

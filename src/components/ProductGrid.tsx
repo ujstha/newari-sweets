@@ -6,9 +6,14 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 export function ProductGrid({
   products,
   showPrice = false,
+  showPopularBadge = false,
 }: {
   products: CatalogProductListItem[];
   showPrice?: boolean;
+  /** True for a best-sellers grid: every card is popular by definition (the
+   * list itself is the computed signal), so this overrides the per-item
+   * is_featured badge rather than needing a stored "is_bestseller" field. */
+  showPopularBadge?: boolean;
 }) {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6">
@@ -53,10 +58,10 @@ export function ProductGrid({
                 </svg>
               </div>
             )}
-            {product.is_featured ? (
-              <span className="absolute top-2 left-2 rounded-full bg-gold px-2.5 py-0.5 text-xs font-medium text-ink shadow-sm">
-                Featured
-              </span>
+            {showPopularBadge ? (
+              <span className="badge-popular absolute top-2 left-2">Popular</span>
+            ) : product.is_featured ? (
+              <span className="badge-featured absolute top-2 left-2">Featured</span>
             ) : null}
             <FavoriteButton
               product={{

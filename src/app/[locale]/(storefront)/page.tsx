@@ -122,7 +122,7 @@ export default async function HomePage() {
                 <Link
                   key={category.slug}
                   href={{ pathname: "/products", hash: category.slug }}
-                  className="rounded-full bg-surface px-3 py-1 text-xs font-medium text-ink-soft transition-colors hover:bg-brand-soft hover:text-brand-dark"
+                  className="pill-filter"
                 >
                   {category.name_i18n.en}
                 </Link>
@@ -181,11 +181,49 @@ export default async function HomePage() {
           </section>
         ) : null}
 
+        {/* Promo band -- the one other place the bold-pop treatment shows
+            up, deliberately scaled back from the full hero exploration
+            (see docs/design-examples) so it's a secondary beat, not a
+            second hero. */}
+        <section className="py-10 sm:py-14">
+          <div className="relative flex items-center gap-6 overflow-hidden rounded-3xl bg-pop-pink p-8 sm:gap-9 sm:p-14">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute top-[-70px] right-[30px] h-52 w-52 rounded-full bg-white/10 sm:h-64 sm:w-64"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute bottom-[-80px] left-[55%] h-36 w-36 rounded-full bg-ink/10"
+            />
+            <div className="relative hidden h-44 w-24 shrink-0 items-center justify-center rounded-full bg-white/15 sm:flex">
+              <svg width="44" height="44" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+                <rect x="30" y="50" width="60" height="34" rx="4" fill="#832f22" />
+                <rect x="26" y="34" width="68" height="20" rx="4" fill="#fffdf9" />
+                <circle cx="60" cy="26" r="5" fill="#fffdf9" />
+              </svg>
+            </div>
+            <div className="relative flex-1">
+              <h3 className="font-pop text-3xl leading-[0.9] font-extrabold tracking-tight text-white uppercase sm:text-5xl">
+                Custom
+                <br />
+                Cakes.
+              </h3>
+              <p className="mt-3 max-w-sm text-sm text-white/85 sm:text-[15px]">
+                Any occasion — birthdays, weddings, pujas. Tell us the flavor, size and date.
+                Layered cakes need at least 7 days notice.
+              </p>
+              <Link href="/products" className="btn-primary mt-5 bg-ink hover:bg-ink/90">
+                Start a custom order
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {bestSellers.length > 0 ? (
           <section className="border-t border-border-warm py-10 sm:py-14">
             <h2 className="font-display text-2xl font-semibold text-ink">Best Sellers</h2>
             <div className="mt-5">
-              <ProductGrid products={bestSellers} />
+              <ProductGrid products={bestSellers} showPopularBadge />
             </div>
           </section>
         ) : null}

@@ -33,8 +33,26 @@ export default async function AdminOrderDetailPage(
       </h1>
 
       {order.dietary_labels.length > 0 ? (
-        <div className="mt-3 rounded-xl bg-brand-soft p-4 text-sm text-brand-dark">
-          <strong>Dietary requests:</strong> {order.dietary_labels.join(", ")}
+        <div className="mt-3 flex items-start gap-3 rounded-xl bg-gold p-4 text-sm text-ink">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+            className="mt-0.5 shrink-0"
+          >
+            <path
+              d="M12 9v4m0 4h.01M10.3 3.9 2.5 17a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <div>
+            <p className="font-semibold">Dietary request: {order.dietary_labels.join(", ")}</p>
+            <p className="mt-0.5 text-ink/75">Confirm this is feasible before approving.</p>
+          </div>
         </div>
       ) : null}
 

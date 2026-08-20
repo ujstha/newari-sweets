@@ -213,7 +213,7 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
               type="button"
               onClick={() => setMode("quick")}
               aria-pressed={mode === "quick"}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${mode === "quick" ? "bg-brand text-white" : "text-ink-soft hover:text-ink"}`}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${mode === "quick" ? "bg-pop-pink text-white" : "text-ink-soft hover:text-ink"}`}
             >
               Order as pictured
             </button>
@@ -221,7 +221,7 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
               type="button"
               onClick={() => setMode("customize")}
               aria-pressed={mode === "customize"}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${mode === "customize" ? "bg-brand text-white" : "text-ink-soft hover:text-ink"}`}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${mode === "customize" ? "bg-pop-pink text-white" : "text-ink-soft hover:text-ink"}`}
             >
               Customize
             </button>

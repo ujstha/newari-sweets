@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Fraunces } from "next/font/google";
+import { Geist, Geist_Mono, Fraunces, Bricolage_Grotesque } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
@@ -25,6 +25,16 @@ const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
   axes: ["opsz", "SOFT", "WONK"],
+});
+
+// Bold accent face -- used ONLY for the homepage hero's bold-pop moments
+// (the promo band, the OG/social-share image) and nowhere else. See
+// globals.css's --font-pop token: this is a deliberately scoped exception
+// to the Fraunces/Geist system, not a second general-purpose typeface.
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
+  subsets: ["latin"],
+  weight: ["700", "800"],
 });
 
 // Site-wide OG/metadata defaults, sourced from admin-editable content so
@@ -63,7 +73,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full scroll-smooth antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${bricolage.variable} h-full scroll-smooth antialiased`}
     >
       <body id="top" className="flex min-h-full flex-col bg-cream text-ink">
         <NextIntlClientProvider>
