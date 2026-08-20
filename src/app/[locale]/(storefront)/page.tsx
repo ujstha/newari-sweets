@@ -78,34 +78,41 @@ export default async function HomePage() {
 
   return (
     <main>
-      <section className="relative overflow-hidden border-b border-border-warm bg-gradient-to-b from-brand-soft/60 to-cream">
-        {/* Purely decorative -- a soft blurred shape to keep the hero from
-            reading flat, deliberately subtle per the "polished, not bold"
-            direction rather than a pattern/texture/illustration. */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-brand-dark to-brand">
+        {/* Purely decorative glow shapes -- the one bold-pop moment on the
+            page (see docs/design-examples), so the color energy here is
+            deliberately louder than the rest of the site. */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 right-0 h-96 w-96 -translate-y-1/2 translate-x-1/3 rounded-full bg-gold/20 blur-3xl"
+          className="pointer-events-none absolute top-[-120px] right-[-80px] h-80 w-80 rounded-full bg-white/[0.06] sm:h-[420px] sm:w-[420px]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-[-140px] left-[15%] h-56 w-56 rounded-full bg-pop-pink/25 sm:h-80 sm:w-80"
         />
         <div className="relative mx-auto grid max-w-5xl items-center gap-10 px-4 py-16 sm:px-8 sm:py-24 md:grid-cols-2 md:gap-14">
           <div className="flex flex-col items-center gap-5 text-center md:items-start md:text-left">
-            <span className="rounded-full border border-gold/40 bg-gold-soft px-3 py-1 text-xs font-medium tracking-wide text-ink-soft uppercase">
-              Handmade in Helsinki
-            </span>
-            <h1 className="font-display text-4xl leading-tight font-semibold text-ink sm:text-5xl">
+            <span className="pill-filter-inverse">Handmade in Helsinki</span>
+            <h1 className="font-pop text-4xl leading-[0.92] font-extrabold tracking-tight text-cream uppercase sm:text-6xl">
               {heading}
             </h1>
             {subtext ? (
-              <p className="max-w-xl text-base text-ink-soft sm:text-lg">{subtext}</p>
+              <p className="max-w-xl text-base text-cream/85 sm:text-lg">{subtext}</p>
             ) : null}
             <div className="mt-2 flex flex-wrap items-center justify-center gap-3 md:justify-start">
-              <Link href="/products" className="btn-primary">
+              <Link href="/products" className="btn-primary bg-gold text-ink hover:bg-gold/90">
                 Browse the shop
               </Link>
+              {aboutBody ? (
+                <a href="#about" className="btn-ghost-inverse">
+                  About us
+                </a>
+              ) : null}
             </div>
           </div>
 
           {heroImage ? (
-            <div className="order-first aspect-square overflow-hidden rounded-2xl shadow-lg md:order-last">
+            <div className="order-first mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-full shadow-2xl md:order-last md:max-w-[380px]">
               {/* eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section (no optimizer on Cloudflare) */}
               <img src={heroImage} alt="" className="h-full w-full object-cover" />
             </div>
@@ -113,16 +120,16 @@ export default async function HomePage() {
         </div>
 
         {categories.length > 1 ? (
-          <div className="border-t border-border-warm/60">
-            <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-2 px-4 py-3 sm:justify-start sm:px-8">
-              <span className="text-xs font-medium tracking-wide text-ink-faint uppercase">
+          <div className="relative border-t border-white/10">
+            <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-2 px-4 py-4 sm:justify-start sm:px-8">
+              <span className="text-xs font-medium tracking-wide text-cream/50 uppercase">
                 Shop by category
               </span>
               {categories.map((category) => (
                 <Link
                   key={category.slug}
                   href={{ pathname: "/products", hash: category.slug }}
-                  className="pill-filter"
+                  className="pill-filter-inverse"
                 >
                   {category.name_i18n.en}
                 </Link>
@@ -158,7 +165,7 @@ export default async function HomePage() {
         </div>
 
         {aboutBody ? (
-          <section className="border-t border-border-warm py-10 sm:py-14">
+          <section id="about" className="scroll-mt-20 border-t border-border-warm py-10 sm:py-14">
             <h2 className="font-display text-2xl font-semibold text-ink">About</h2>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-soft">{aboutBody}</p>
           </section>

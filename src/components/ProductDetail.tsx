@@ -115,10 +115,10 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
   return (
     <main className="mx-auto max-w-5xl px-4 pt-10 pb-28 sm:px-8 sm:py-14">
       <div className="grid gap-10 sm:grid-cols-2 sm:gap-14">
-        <div>
+        <div className="flex flex-col items-center">
           {product.images.length > 0 ? (
             <>
-              <div className="aspect-square overflow-hidden rounded-2xl bg-brand-soft">
+              <div className="aspect-square w-full max-w-[420px] overflow-hidden rounded-full bg-brand-soft shadow-lg">
                 {/* eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section (no optimizer on Cloudflare) */}
                 <img
                   src={getPublicImageUrl(product.images[activeImage].storage_path)}
@@ -127,7 +127,7 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
                 />
               </div>
               {product.images.length > 1 ? (
-                <div className="mt-3 flex gap-2">
+                <div className="mt-4 flex gap-2">
                   {product.images.map((image, i) => (
                     <button
                       key={image.storage_path}
@@ -135,7 +135,7 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
                       onClick={() => setActiveImage(i)}
                       aria-current={i === activeImage}
                       aria-label={`Show image ${i + 1} of ${product.images.length}`}
-                      className={`overflow-hidden rounded-xl ring-2 ring-offset-2 ring-offset-cream transition-colors ${i === activeImage ? "ring-brand" : "ring-transparent"}`}
+                      className={`overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-cream transition-colors ${i === activeImage ? "ring-brand" : "ring-transparent"}`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section */}
                       <img
@@ -149,7 +149,7 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
               ) : null}
             </>
           ) : (
-            <div className="aspect-square rounded-2xl bg-brand-soft" />
+            <div className="aspect-square w-full max-w-[420px] rounded-full bg-brand-soft" />
           )}
         </div>
 

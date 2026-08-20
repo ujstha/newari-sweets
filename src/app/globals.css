@@ -52,9 +52,15 @@ body {
   .btn-ghost {
     @apply inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-medium text-ink-soft transition-all hover:text-brand active:scale-[0.97];
   }
+  /* For sitting directly on a dark/colored surface (the hero) -- a plain
+     .btn-secondary's cream/border-warm combo disappears there. */
+  .btn-ghost-inverse {
+    @apply inline-flex items-center justify-center rounded-full border border-white/50 bg-transparent px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-white/10 active:scale-[0.97];
+  }
   .btn-primary,
   .btn-secondary,
-  .btn-ghost {
+  .btn-ghost,
+  .btn-ghost-inverse {
     @apply focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:outline-none;
   }
   .card-surface {
@@ -87,6 +93,10 @@ body {
   }
   .pill-filter-active {
     @apply rounded-full border border-pop-pink bg-pop-pink px-3.5 py-1.5 text-xs font-medium whitespace-nowrap text-white;
+  }
+  /* Same pill, glass treatment for sitting directly on the dark hero. */
+  .pill-filter-inverse {
+    @apply rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-xs font-medium whitespace-nowrap text-cream transition-colors hover:bg-white/20;
   }
 
   /* Sticky live order-summary panel -- cart/checkout's running total,

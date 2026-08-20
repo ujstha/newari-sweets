@@ -51,10 +51,10 @@ export default function CartPage() {
                 <img
                   src={getPublicImageUrl(item.imagePath)}
                   alt=""
-                  className="h-20 w-20 rounded-xl object-cover"
+                  className="h-20 w-20 rounded-full object-cover"
                 />
               ) : (
-                <div className="h-20 w-20 flex-shrink-0 rounded-xl bg-brand-soft" />
+                <div className="h-20 w-20 flex-shrink-0 rounded-full bg-brand-soft" />
               )}
               <div className="flex-1">
                 <p className="font-display text-sm font-medium text-ink">{item.name}</p>
