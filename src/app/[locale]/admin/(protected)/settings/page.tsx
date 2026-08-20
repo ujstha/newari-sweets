@@ -70,6 +70,7 @@ export default async function AdminSettingsPage() {
               type="checkbox"
               name="announcement_active"
               defaultChecked={settings.announcement_active}
+              className="checkbox-field"
             />
             Show banner
           </label>

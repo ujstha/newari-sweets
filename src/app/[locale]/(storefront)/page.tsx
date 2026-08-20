@@ -79,7 +79,14 @@ export default async function HomePage() {
   return (
     <main>
       <section className="relative overflow-hidden border-b border-border-warm bg-gradient-to-b from-brand-soft/60 to-cream">
-        <div className="mx-auto grid max-w-5xl items-center gap-10 px-4 py-16 sm:px-8 sm:py-24 md:grid-cols-2 md:gap-14">
+        {/* Purely decorative -- a soft blurred shape to keep the hero from
+            reading flat, deliberately subtle per the "polished, not bold"
+            direction rather than a pattern/texture/illustration. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 right-0 h-96 w-96 -translate-y-1/2 translate-x-1/3 rounded-full bg-gold/20 blur-3xl"
+        />
+        <div className="relative mx-auto grid max-w-5xl items-center gap-10 px-4 py-16 sm:px-8 sm:py-24 md:grid-cols-2 md:gap-14">
           <div className="flex flex-col items-center gap-5 text-center md:items-start md:text-left">
             <span className="rounded-full border border-gold/40 bg-gold-soft px-3 py-1 text-xs font-medium tracking-wide text-ink-soft uppercase">
               Handmade in Helsinki

@@ -6,6 +6,7 @@ import {
   deleteOptionGroup,
   deleteOptionValue,
 } from "@/app/[locale]/admin/(protected)/products/actions";
+import { SelectField } from "@/components/SelectField";
 
 export function OptionGroupEditor({
   productId,
@@ -91,7 +92,7 @@ export function OptionGroupEditor({
                 defaultValue={0}
                 className="input-field w-28 py-1 text-xs"
               />
-              <select name="ingredient_id" className="input-field w-auto py-1 text-xs">
+              <SelectField name="ingredient_id" className="w-auto py-1 text-xs">
                 <option value="">(no linked ingredient)</option>
                 {suggested.length > 0 ? (
                   <optgroup label="Suggested for this category">
@@ -109,9 +110,9 @@ export function OptionGroupEditor({
                     </option>
                   ))}
                 </optgroup>
-              </select>
+              </SelectField>
               <label className="flex items-center gap-1.5 text-xs text-ink-soft">
-                <input type="checkbox" name="is_default" /> Default
+                <input type="checkbox" name="is_default" className="checkbox-field" /> Default
               </label>
               <button type="submit" className="btn-secondary px-3 py-1 text-xs">
                 Add value
@@ -128,12 +129,13 @@ export function OptionGroupEditor({
           required
           className="input-field w-auto py-1 text-xs"
         />
-        <select name="selection_type" className="input-field w-auto py-1 text-xs">
+        <SelectField name="selection_type" className="w-auto py-1 text-xs">
           <option value="single">Single-select</option>
           <option value="multiple">Multi-select</option>
-        </select>
+        </SelectField>
         <label className="flex items-center gap-1.5 text-xs text-ink-soft">
-          <input type="checkbox" name="is_required" defaultChecked /> Required
+          <input type="checkbox" name="is_required" defaultChecked className="checkbox-field" />{" "}
+          Required
         </label>
         <button type="submit" className="btn-primary px-3 py-1 text-xs">
           Add group

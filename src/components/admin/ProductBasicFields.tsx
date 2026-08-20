@@ -1,5 +1,6 @@
 import type { Category, Unit, Allergen } from "@/lib/content/catalog-master-data";
 import type { ProductForEdit } from "@/lib/content/products";
+import { SelectField } from "@/components/SelectField";
 
 export function ProductBasicFields({
   categories,
@@ -45,12 +46,11 @@ export function ProductBasicFields({
           <label htmlFor="category_id" className="field-label mb-1.5">
             Category
           </label>
-          <select
+          <SelectField
             id="category_id"
             name="category_id"
             required
             defaultValue={product?.category_id ?? ""}
-            className="input-field"
           >
             <option value="" disabled>
               Select...
@@ -60,19 +60,13 @@ export function ProductBasicFields({
                 {category.name_i18n.en}
               </option>
             ))}
-          </select>
+          </SelectField>
         </div>
         <div>
           <label htmlFor="unit_id" className="field-label mb-1.5">
             Unit
           </label>
-          <select
-            id="unit_id"
-            name="unit_id"
-            required
-            defaultValue={product?.unit_id ?? ""}
-            className="input-field"
-          >
+          <SelectField id="unit_id" name="unit_id" required defaultValue={product?.unit_id ?? ""}>
             <option value="" disabled>
               Select...
             </option>
@@ -81,7 +75,7 @@ export function ProductBasicFields({
                 {unit.label_i18n.en} ({unit.code})
               </option>
             ))}
-          </select>
+          </SelectField>
         </div>
       </div>
 
@@ -129,11 +123,21 @@ export function ProductBasicFields({
 
       <div className="flex flex-wrap gap-4 text-sm text-ink-soft">
         <label className="flex items-center gap-1.5">
-          <input type="checkbox" name="is_active" defaultChecked={product?.is_active ?? true} />
+          <input
+            type="checkbox"
+            name="is_active"
+            defaultChecked={product?.is_active ?? true}
+            className="checkbox-field"
+          />
           Active
         </label>
         <label className="flex items-center gap-1.5">
-          <input type="checkbox" name="is_featured" defaultChecked={product?.is_featured} />
+          <input
+            type="checkbox"
+            name="is_featured"
+            defaultChecked={product?.is_featured}
+            className="checkbox-field"
+          />
           Featured
         </label>
         <label className="flex items-center gap-1.5">
@@ -141,6 +145,7 @@ export function ProductBasicFields({
             type="checkbox"
             name="supports_message"
             defaultChecked={product?.supports_message}
+            className="checkbox-field"
           />
           Supports cake message
         </label>
@@ -156,6 +161,7 @@ export function ProductBasicFields({
                 name="allergen_ids"
                 value={allergen.id}
                 defaultChecked={product?.allergen_ids.includes(allergen.id)}
+                className="checkbox-field"
               />
               {allergen.label_i18n.en}
             </label>
