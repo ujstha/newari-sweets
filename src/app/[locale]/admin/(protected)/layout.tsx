@@ -1,8 +1,7 @@
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { AdminNav } from "@/components/admin/AdminNav";
-import { signOut } from "../actions";
+import { AdminShell } from "@/components/admin/AdminShell";
 
 // Force every admin route to render fresh on every request -- these pages
 // show live business data an admin just edited, and must never serve a
@@ -51,23 +50,5 @@ export default async function AdminProtectedLayout({ children }: LayoutProps<"/[
     return redirect({ href: "/admin/mfa-challenge", locale });
   }
 
-  return (
-    <div className="flex min-h-screen flex-col bg-cream sm:h-screen sm:flex-row sm:overflow-hidden">
-      <aside className="border-b border-border-warm bg-surface sm:h-screen sm:w-56 sm:flex-shrink-0 sm:overflow-y-auto sm:border-r sm:border-b-0">
-        <div className="flex items-center justify-between px-4 py-4 sm:px-5">
-          <span className="font-display text-base font-semibold text-ink">Newari Sweets</span>
-        </div>
-        <AdminNav />
-        <form action={signOut} className="px-4 py-3 sm:px-3">
-          <button
-            type="submit"
-            className="w-full rounded-lg px-3.5 py-2 text-left text-sm font-medium text-ink-soft transition-colors hover:bg-brand-soft hover:text-brand-dark"
-          >
-            Sign out
-          </button>
-        </form>
-      </aside>
-      <main className="flex-1 px-4 py-8 sm:overflow-y-auto sm:px-8 sm:py-10">{children}</main>
-    </div>
-  );
+  return <AdminShell>{children}</AdminShell>;
 }
