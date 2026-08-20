@@ -34,7 +34,12 @@ export default async function AdminCategoriesPage() {
                   />
                 </label>
                 <label className="flex items-center gap-1.5 text-xs text-ink-soft">
-                  <input type="checkbox" name="is_active" defaultChecked={category.is_active} />
+                  <input
+                    type="checkbox"
+                    name="is_active"
+                    defaultChecked={category.is_active}
+                    className="checkbox-field"
+                  />
                   Active
                 </label>
                 <button type="submit" className="btn-secondary px-3 py-1.5 text-xs">

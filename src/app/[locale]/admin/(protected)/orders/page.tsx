@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { getOrderQueue } from "@/lib/content/admin-orders";
+import { SelectField } from "@/components/SelectField";
 
 const STATUS_ORDER = ["pending_review", "approved", "ready", "completed", "declined", "cancelled"];
 
@@ -41,14 +42,14 @@ export default async function AdminOrdersPage(props: PageProps<"/[locale]/admin/
       <h1 className="font-display text-2xl font-semibold text-ink">Orders</h1>
 
       <form className="mt-4 flex flex-wrap gap-2" method="get">
-        <select name="status" defaultValue={statusFilter} className="input-field w-auto py-1.5">
+        <SelectField name="status" defaultValue={statusFilter} className="w-auto py-1.5">
           <option value="">All statuses</option>
           {STATUS_ORDER.map((s) => (
             <option key={s} value={s}>
               {s.replace("_", " ")}
             </option>
           ))}
-        </select>
+        </SelectField>
         <input
           name="q"
           defaultValue={query}

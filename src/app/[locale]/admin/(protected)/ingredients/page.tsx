@@ -46,7 +46,12 @@ export default async function AdminIngredientsPage() {
                     />
                   </label>
                   <label className="flex items-center gap-1.5 text-xs text-ink-soft">
-                    <input type="checkbox" name="is_active" defaultChecked={ingredient.is_active} />
+                    <input
+                      type="checkbox"
+                      name="is_active"
+                      defaultChecked={ingredient.is_active}
+                      className="checkbox-field"
+                    />
                     Active
                   </label>
                 </div>
@@ -63,6 +68,7 @@ export default async function AdminIngredientsPage() {
                           name="category_ids"
                           value={category.id}
                           defaultChecked={ingredient.category_ids.includes(category.id)}
+                          className="checkbox-field"
                         />
                         {category.name_i18n.en}
                       </label>
@@ -82,6 +88,7 @@ export default async function AdminIngredientsPage() {
                           name="allergen_ids"
                           value={allergen.id}
                           defaultChecked={ingredient.allergen_ids.includes(allergen.id)}
+                          className="checkbox-field"
                         />
                         {allergen.label_i18n.en}
                       </label>
@@ -121,7 +128,12 @@ export default async function AdminIngredientsPage() {
           <div className="flex flex-wrap gap-3">
             {categories.map((category) => (
               <label key={category.id} className="flex items-center gap-1.5 text-xs text-ink-soft">
-                <input type="checkbox" name="category_ids" value={category.id} />
+                <input
+                  type="checkbox"
+                  name="category_ids"
+                  value={category.id}
+                  className="checkbox-field"
+                />
                 {category.name_i18n.en}
               </label>
             ))}
@@ -132,7 +144,12 @@ export default async function AdminIngredientsPage() {
           <div className="flex flex-wrap gap-3">
             {allergens.map((allergen) => (
               <label key={allergen.id} className="flex items-center gap-1.5 text-xs text-ink-soft">
-                <input type="checkbox" name="allergen_ids" value={allergen.id} />
+                <input
+                  type="checkbox"
+                  name="allergen_ids"
+                  value={allergen.id}
+                  className="checkbox-field"
+                />
                 {allergen.label_i18n.en}
               </label>
             ))}
