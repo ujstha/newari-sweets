@@ -42,9 +42,9 @@ export default function CartPage() {
     <main className="mx-auto max-w-2xl px-4 py-10 sm:px-8 sm:py-14">
       <h1 className="font-display text-3xl font-semibold text-ink">Cart</h1>
 
-      <ul className="mt-6 space-y-3">
+      <div className="card-surface mt-6 divide-y divide-border-warm">
         {items.map((item) => (
-          <li key={item.id} className="card-surface flex gap-4 p-4">
+          <div key={item.id} className="flex gap-4 p-4">
             {item.imagePath ? (
               // eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section
               <img
@@ -91,9 +91,9 @@ export default function CartPage() {
             <p className="text-sm font-medium text-ink">
               {((item.unitPriceCents * item.quantity) / 100).toFixed(2)} €
             </p>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
 
       <div className="mt-8 flex items-center justify-between border-t border-border-warm pt-6">
         <p className="font-display text-lg font-semibold text-ink">

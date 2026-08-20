@@ -62,9 +62,9 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-cream text-ink">
+      <body id="top" className="flex min-h-full flex-col bg-cream text-ink">
         <NextIntlClientProvider>
           <CartProvider>{children}</CartProvider>
         </NextIntlClientProvider>

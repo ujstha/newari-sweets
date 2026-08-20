@@ -1,6 +1,7 @@
 import { getSiteSettings } from "@/lib/content/site-settings";
 import { Link } from "@/i18n/navigation";
 import { CartLink } from "./CartLink";
+import { LogoMark } from "./LogoMark";
 
 export async function Header() {
   const settings = await getSiteSettings();
@@ -9,11 +10,11 @@ export async function Header() {
   return (
     <header className="sticky top-0 z-30 border-b border-border-warm bg-cream/90 backdrop-blur">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-8">
-        <Link
-          href="/"
-          className="font-display text-xl font-semibold tracking-tight text-ink transition-colors hover:text-brand"
-        >
-          {name}
+        <Link href="/" className="group flex items-center gap-2.5">
+          <LogoMark className="transition-transform group-hover:scale-105" />
+          <span className="font-display text-xl font-semibold tracking-tight text-ink transition-colors group-hover:text-brand">
+            {name}
+          </span>
         </Link>
         <div className="flex items-center gap-6">
           <Link
