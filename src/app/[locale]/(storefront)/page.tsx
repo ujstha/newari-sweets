@@ -101,14 +101,11 @@ export default async function HomePage() {
               <Link href="/products" className="btn-primary">
                 Browse the shop
               </Link>
-              <Link href={{ pathname: "/products", hash: "cakes" }} className="btn-secondary">
-                Order a custom cake
-              </Link>
             </div>
           </div>
 
           {heroImage ? (
-            <div className="order-first aspect-4/3 overflow-hidden rounded-2xl shadow-lg md:order-last">
+            <div className="order-first aspect-square overflow-hidden rounded-2xl shadow-lg md:order-last">
               {/* eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section (no optimizer on Cloudflare) */}
               <img src={heroImage} alt="" className="h-full w-full object-cover" />
             </div>
