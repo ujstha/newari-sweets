@@ -52,8 +52,8 @@ export default async function AdminProtectedLayout({ children }: LayoutProps<"/[
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-cream sm:flex-row">
-      <aside className="border-b border-border-warm bg-surface sm:w-56 sm:flex-shrink-0 sm:border-r sm:border-b-0">
+    <div className="flex min-h-screen flex-col bg-cream sm:h-screen sm:flex-row sm:overflow-hidden">
+      <aside className="border-b border-border-warm bg-surface sm:h-screen sm:w-56 sm:flex-shrink-0 sm:overflow-y-auto sm:border-r sm:border-b-0">
         <div className="flex items-center justify-between px-4 py-4 sm:px-5">
           <span className="font-display text-base font-semibold text-ink">Newari Sweets</span>
         </div>
@@ -67,7 +67,7 @@ export default async function AdminProtectedLayout({ children }: LayoutProps<"/[
           </button>
         </form>
       </aside>
-      <main className="flex-1 px-4 py-8 sm:px-8 sm:py-10">{children}</main>
+      <main className="flex-1 px-4 py-8 sm:overflow-y-auto sm:px-8 sm:py-10">{children}</main>
     </div>
   );
 }
