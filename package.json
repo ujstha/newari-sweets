@@ -18,6 +18,13 @@
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf:typegen": "wrangler types"
   },
+  "allowScripts": {
+    "esbuild": true,
+    "@parcel/watcher": true,
+    "@swc/core": true,
+    "unrs-resolver": true,
+    "workerd": true
+  },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,mjs}": [
       "eslint --fix",
