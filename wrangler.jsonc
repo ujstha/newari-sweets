@@ -22,8 +22,8 @@
   // set them via `wrangler secret put <NAME>` once the Supabase/Resend
   // projects exist, per PLAN.md's Deployment section.
   "vars": {
-    "NEXT_PUBLIC_SUPABASE_URL": "",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://hgvuaveestlqbyrclbir.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_1n858zr6LM8hrudKjiHAjQ_D9tNyegb",
   },
   // Staging environment, deployed from the `dev` branch, pointing at a
   // separate staging Supabase project so it's safe to break. See PLAN.md's
