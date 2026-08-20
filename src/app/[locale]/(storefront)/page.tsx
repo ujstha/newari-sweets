@@ -133,24 +133,26 @@ export default async function HomePage() {
       </section>
 
       <div className="mx-auto max-w-5xl px-4 sm:px-8">
-        <div className="grid gap-6 py-10 sm:grid-cols-3 sm:py-14">
+        <div className="grid gap-4 py-8 sm:grid-cols-3 sm:gap-6 sm:py-14">
           {VALUE_PROPS.map((item) => (
             <div
               key={item.title}
-              className="flex flex-col items-center gap-2 text-center sm:items-start sm:text-left"
+              className="flex flex-row items-center gap-3 text-left sm:flex-col sm:items-start sm:gap-2"
             >
               <svg
-                width="28"
-                height="28"
+                width="24"
+                height="24"
                 viewBox="0 0 24 24"
                 fill="none"
-                className="text-brand"
+                className="shrink-0 text-brand sm:h-7 sm:w-7"
                 aria-hidden="true"
               >
                 {item.icon}
               </svg>
-              <p className="font-display text-base font-medium text-ink">{item.title}</p>
-              <p className="text-sm text-ink-soft">{item.body}</p>
+              <div>
+                <p className="font-display text-base font-medium text-ink">{item.title}</p>
+                <p className="text-sm text-ink-soft">{item.body}</p>
+              </div>
             </div>
           ))}
         </div>

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { getSiteSettings } from "@/lib/content/site-settings";
 import { CartProvider } from "@/lib/cart/CartContext";
+import { FavoritesProvider } from "@/lib/favorites/FavoritesContext";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -66,7 +67,9 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
     >
       <body id="top" className="flex min-h-full flex-col bg-cream text-ink">
         <NextIntlClientProvider>
-          <CartProvider>{children}</CartProvider>
+          <FavoritesProvider>
+            <CartProvider>{children}</CartProvider>
+          </FavoritesProvider>
         </NextIntlClientProvider>
       </body>
     </html>

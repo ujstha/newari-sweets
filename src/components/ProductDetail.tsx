@@ -7,6 +7,7 @@ import { computeDisplayedAllergens } from "@/lib/domain/ingredients";
 import type { CatalogProductDetail } from "@/lib/content/public-catalog";
 import { getPublicImageUrl } from "@/lib/content/image-url";
 import { QuantityStepper } from "@/components/QuantityStepper";
+import { FavoriteButton } from "@/components/FavoriteButton";
 
 function defaultSelections(groups: CatalogProductDetail["option_groups"]) {
   const sel: Record<string, string[]> = {};
@@ -112,7 +113,7 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10 sm:px-8 sm:py-14">
+    <main className="mx-auto max-w-5xl px-4 pt-10 pb-28 sm:px-8 sm:py-14">
       <div className="grid gap-10 sm:grid-cols-2 sm:gap-14">
         <div>
           {product.images.length > 0 ? (
@@ -153,7 +154,20 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
         </div>
 
         <div>
-          <h1 className="font-display text-3xl font-semibold text-ink">{product.name_i18n.en}</h1>
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="font-display text-3xl font-semibold text-ink">{product.name_i18n.en}</h1>
+            <FavoriteButton
+              product={{
+                productId: product.id,
+                slug: product.slug,
+                name: product.name_i18n.en ?? "",
+                imagePath: product.images[0]?.storage_path ?? null,
+                priceCents: product.base_price_cents,
+                unitCode: product.unit.code,
+              }}
+              className="mt-1 h-9 w-9 shrink-0 border border-border-warm bg-surface"
+            />
+          </div>
           {product.highlight_note_i18n.en ? (
             <p className="mt-2 inline-block rounded-full bg-gold-soft px-3 py-1 text-xs font-medium text-ink-soft">
               {product.highlight_note_i18n.en}
@@ -286,10 +300,34 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
             {(price.lineTotalCents / 100).toFixed(2)} €
           </p>
 
-          <button type="button" onClick={handleAddToCart} className="btn-primary mt-3 w-full py-3">
+          {/* Hidden on mobile in favor of the sticky bar below -- avoids two
+              competing Add to cart buttons on a small screen. Desktop keeps
+              this one since it's already in easy reach there. */}
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            className="btn-primary mt-3 hidden w-full py-3 sm:flex"
+          >
             {added ? "Added to cart ✓" : "Add to cart"}
           </button>
         </div>
+      </div>
+
+      {/* Sticky mobile "buy bar" -- price + Add to cart pinned to the
+          viewport bottom, always in reach without scrolling back up. The
+          highest-leverage mobile e-commerce pattern per the design research
+          behind this change; desktop doesn't need it (button's already
+          visible in normal flow there). */}
+      <div
+        className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-3 border-t border-border-warm bg-surface/95 px-4 py-3 backdrop-blur sm:hidden"
+        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
+      >
+        <p className="font-display text-lg font-semibold text-brand">
+          {(price.lineTotalCents / 100).toFixed(2)} €
+        </p>
+        <button type="button" onClick={handleAddToCart} className="btn-primary flex-1 py-2.5">
+          {added ? "Added ✓" : "Add to cart"}
+        </button>
       </div>
     </main>
   );
