@@ -2,6 +2,7 @@ import { getSiteSettings } from "@/lib/content/site-settings";
 import { getActiveProducts } from "@/lib/content/public-catalog";
 import { Link } from "@/i18n/navigation";
 import { LogoMark } from "./LogoMark";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 function InstagramIcon() {
   return (
@@ -50,19 +51,16 @@ export async function Footer() {
       {/* Thin top seam with a centered diamond stitch -- a small, quiet
           nod to the site's warm palette rather than a flat straight line. */}
       <div className="relative border-t border-cream/10">
-        <span className="absolute top-0 left-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-gold" />
+        <span className="absolute top-0 left-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-gold" />
       </div>
 
       <div className="mx-auto max-w-5xl px-4 py-14 sm:px-8">
         <div className="flex flex-col gap-10 text-sm sm:flex-row sm:flex-wrap sm:justify-between sm:gap-x-12 sm:gap-y-10">
           <div className="sm:max-w-64">
-            <Link href="/" className="flex items-center gap-2.5">
-              <LogoMark className="bg-gold text-ink" />
-              <span className="font-display text-lg font-semibold text-cream">
-                {settings.business_name || "Newari Sweets"}
-              </span>
+            <Link href="/" className="flex items-center">
+              <LogoMark />
             </Link>
-            <p className="mt-3 font-display text-sm text-cream/50 italic">
+            <p className="mt-3 text-sm font-normal text-cream/50">
               Handmade Nepali sweets &amp; custom cakes, made to order in Helsinki.
             </p>
             {settings.instagram_url || settings.facebook_url ? (
@@ -163,9 +161,12 @@ export async function Footer() {
           <p>
             &copy; {new Date().getFullYear()} {settings.business_name || "Newari Sweets"}
           </p>
-          <a href="#top" className="transition-colors hover:text-gold">
-            Back to top &uarr;
-          </a>
+          <div className="flex items-center gap-4">
+            <ThemeSwitcher />
+            <a href="#top" className="transition-colors hover:text-gold">
+              Back to top &uarr;
+            </a>
+          </div>
         </div>
       </div>
     </footer>
