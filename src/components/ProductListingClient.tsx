@@ -42,8 +42,9 @@ export function ProductListingClient({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveSlug(hash);
     }
-
-    // needs to run once, against the hash present on initial load.
+    // Only ever needs to run once, against the hash present on initial
+    // load -- not on every `categories` identity change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filtered = useMemo(() => {
