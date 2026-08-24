@@ -7,6 +7,7 @@ import {
   deleteProductImage,
 } from "@/app/[locale]/admin/(protected)/products/actions";
 import type { ProductImageRow } from "@/lib/content/products";
+import { compressImage, MAX_UPLOAD_BYTES } from "@/lib/image-compress";
 
 // Uploads directly to Supabase Storage from the browser (authorized via the
 // admin's session + the product-images bucket's storage RLS policies, see
@@ -25,6 +26,20 @@ export function ImageUploader({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const selected = e.target.files?.[0] ?? null;
+    if (selected && selected.size > MAX_UPLOAD_BYTES) {
+      setError(
+        `That file is ${(selected.size / (1024 * 1024)).toFixed(1)}MB -- max is ${MAX_UPLOAD_BYTES / (1024 * 1024)}MB.`,
+      );
+      setFile(null);
+      e.target.value = ""; // so re-selecting the same oversized file re-fires onChange
+      return;
+    }
+    setError(null);
+    setFile(selected);
+  }
+
   function handleUpload(e: React.FormEvent) {
     e.preventDefault();
     if (!file || !altText.trim()) {
@@ -36,12 +51,17 @@ export function ImageUploader({
     startTransition(async () => {
       try {
         const supabase = createClient();
-        const ext = file.name.split(".").pop() ?? "jpg";
+        // Resize/re-encode client-side first -- raw phone photos land at
+        // 2-8MB, this brings each one down to ~150-400KB before it ever
+        // touches Storage. Free-tier storage/egress friendly by default,
+        // not something an admin has to remember to do manually.
+        const upload = await compressImage(file);
+        const ext = upload.name.split(".").pop() ?? "jpg";
         const path = `${productId}/${crypto.randomUUID()}.${ext}`;
 
         const { error: uploadError } = await supabase.storage
           .from("product-images")
-          .upload(path, file);
+          .upload(path, upload);
         if (uploadError) throw uploadError;
 
         await addProductImage(productId, path, altText.trim(), isPrimary);
@@ -89,7 +109,7 @@ export function ImageUploader({
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          onChange={handleFileChange}
           className="text-sm text-ink-soft file:mr-3 file:rounded-full file:border-0 file:bg-brand-soft file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-brand-dark"
         />
         <input

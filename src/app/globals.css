@@ -36,6 +36,89 @@
   --font-pop: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Named color themes -- a fixed set, swapped via the SITE_THEME constant in
+   src/lib/theme.ts (data-theme attribute on <html>), NOT an admin or
+   visitor-facing picker. :root above holds "jamun-syrup" (the default);
+   each block below redefines the same --color-* tokens for one alternate
+   mood. Fonts/spacing/shadows are unaffected -- only the color tokens
+   change between themes. */
+
+/* Deep, formal, heritage red -- Bhaktapur/Kathmandu Durbar Square brick and
+   temple-red, paired with the same marigold gold as the default theme. */
+:root[data-theme="durbar-red"] {
+  --color-cream: #f7ece0;
+  --color-surface: #fffdf9;
+  --color-ink: #2b1710;
+  --color-ink-soft: #6b5a4e;
+  --color-ink-faint: #9c8b7d;
+  --color-brand: #7a2e2e;
+  --color-brand-dark: #5c2020;
+  --color-brand-soft: #f2e0de;
+  --color-gold: #c6892e;
+  --color-gold-soft: #f7ecd6;
+  --color-border-warm: #e6d5c4;
+  --color-pop-pink: #c9315f;
+  --color-pop-pink-dark: #9e2549;
+  --color-pop-pink-soft: #f7dbe4;
+}
+
+/* Brightest of the set -- marigold/sel-roti gold promoted to primary,
+   terracotta reversed into the accent role it played in the default theme. */
+:root[data-theme="sel-roti-gold"] {
+  --color-cream: #fff8ec;
+  --color-surface: #ffffff;
+  --color-ink: #3a2a10;
+  --color-ink-soft: #7d6a4a;
+  --color-ink-faint: #ab9a7c;
+  --color-brand: #d69a3c;
+  --color-brand-dark: #b17b26;
+  --color-brand-soft: #fbecd2;
+  --color-gold: #a6402f;
+  --color-gold-soft: #f5e3dc;
+  --color-border-warm: #f0dfc0;
+  --color-pop-pink: #e8558a;
+  --color-pop-pink-dark: #bd3d6a;
+  --color-pop-pink-soft: #fce4ec;
+}
+
+/* Bold and playful -- rhododendron (gurans) pink promoted to primary,
+   terracotta reversed into the accent role. */
+:root[data-theme="gurans-bloom"] {
+  --color-cream: #fdf1f4;
+  --color-surface: #fffbfc;
+  --color-ink: #341521;
+  --color-ink-soft: #6e4a58;
+  --color-ink-faint: #a48997;
+  --color-brand: #d63d6e;
+  --color-brand-dark: #ad2f58;
+  --color-brand-soft: #fbe1e8;
+  --color-gold: #c6892e;
+  --color-gold-soft: #f7ecd6;
+  --color-border-warm: #f3dde3;
+  --color-pop-pink: #a6402f;
+  --color-pop-pink-dark: #832f22;
+  --color-pop-pink-soft: #f5e3dc;
+}
+
+/* Quiet, neutral, minimal -- a muted taupe/coffee-with-milk primary rather
+   than a loud one, for a restrained alternative to the warmer themes. */
+:root[data-theme="himalayan-mist"] {
+  --color-cream: #f7f5f2;
+  --color-surface: #ffffff;
+  --color-ink: #262220;
+  --color-ink-soft: #63594f;
+  --color-ink-faint: #948a7d;
+  --color-brand: #8a6a4f;
+  --color-brand-dark: #6b4f39;
+  --color-brand-soft: #ede4d9;
+  --color-gold: #b8903f;
+  --color-gold-soft: #f2e9d8;
+  --color-border-warm: #e5e0d8;
+  --color-pop-pink: #d94e77;
+  --color-pop-pink-dark: #ad3a5c;
+  --color-pop-pink-soft: #f9dde6;
+}
+
 body {
   background: var(--color-cream);
   color: var(--color-ink);

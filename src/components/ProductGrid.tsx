@@ -21,11 +21,7 @@ export function ProductGrid({
         <Link
           key={product.id}
           href={`/products/${product.slug}`}
-          className={`group block overflow-hidden rounded-2xl border bg-surface transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand/5 ${
-            product.is_featured
-              ? "border-gold/50 shadow-[0_2px_16px_-4px_rgba(198,137,46,0.35)]"
-              : "border-border-warm"
-          }`}
+          className="group block overflow-hidden rounded-2xl border border-border-warm bg-surface transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand/5"
         >
           <div className="relative aspect-square overflow-hidden bg-brand-soft">
             {product.primary_image_path ? (

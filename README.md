@@ -91,6 +91,22 @@ This Git repository is the **inner** `newari-sweets/` folder. The **outer** `new
    ```
    (Repeat for `RESEND_API_KEY` once you reach build-order Phase 8 — not needed before then.)
 
+## Color themes
+
+The storefront ships 5 named color themes (`Jamun Syrup`, `Durbar Red`, `Sel Roti Gold`, `Gurans Bloom`, `Himalayan Mist`) defined as `[data-theme="..."]` override blocks in `src/app/globals.css`, redefining the same `--color-*` custom properties the default `:root` block sets. `src/lib/theme.ts` holds the theme list, the default, and the display metadata (name + swatch color) used by the picker.
+
+This is **visitor-facing only, not admin/CMS-managed** — a deliberate choice, not a missing feature. `ThemeSwitcher.tsx` (in the footer) lets a visitor pick a theme, persisted per-browser in `localStorage`; there is no site-wide/admin setting for it. A `beforeInteractive` script in the root layout (`src/app/[locale]/layout.tsx`) applies a returning visitor's stored choice before hydration to avoid a flash of the default theme — this is also why `<html>` carries `suppressHydrationWarning`: the resulting attribute mismatch between server and client is expected, not a bug.
+
+**Adding a new theme**: add its name to `SITE_THEMES`/`THEME_META` in `src/lib/theme.ts`, then add a matching `:root[data-theme="..."]` block in `globals.css` redefining every token the default block sets.
+
+## Image uploads
+
+Product photo uploads (`src/components/admin/ImageUploader.tsx`) are resized/re-encoded client-side before they reach Supabase Storage — see `src/lib/image-compress.ts`. This exists purely to keep storage/bandwidth usage low on Supabase's free tier, since Cloudflare's adapter can't run Next's image optimizer (no server-side resizing available).
+
+- Files over `MAX_UPLOAD_BYTES` (15MB) are rejected at file-selection time with a clear error, before any decode is attempted.
+- Files at or under `SKIP_COMPRESSION_BELOW_BYTES` (200KB) upload unchanged — nothing to gain from a re-encode.
+- Everything else gets downscaled to a 1600px max dimension and re-encoded as JPEG (quality 0.82) via `createImageBitmap` + canvas, falling back to the original file untouched if the browser can't decode it (e.g. HEIC outside Safari) rather than blocking the upload.
+
 ## Environment variables
 
 This stack needs **two different access patterns**, and mixing them up fails silently — it works in `next dev` but breaks on the deployed Cloudflare Worker. Always go through `src/lib/env.ts` rather than reading `process.env`/Cloudflare bindings directly elsewhere in the app, so this distinction only has to be understood in one place:
@@ -156,10 +172,19 @@ src/
   components/
     Header.tsx, Footer.tsx, AnnouncementBanner.tsx  # site chrome, all
                                                       # sourced from DB
+    ThemeSwitcher.tsx    # visitor-facing color theme picker (footer),
+                          # localStorage-persisted -- see "Color themes"
     PageContentBody.tsx    # shared title+markdown renderer for the fixed
                             # CMS pages (react-markdown, no raw HTML)
+    admin/
+      ImageUploader.tsx    # product photo upload -- compresses client-side
+                           # before upload, see "Image uploads"
   i18n/                # next-intl routing/request/navigation config
   lib/
+    theme.ts            # named color themes list/default/metadata, see
+                         # "Color themes"
+    image-compress.ts    # client-side resize/re-encode before upload, see
+                          # "Image uploads"
     content/
       site-settings.ts   # getSiteSettings() -- React cache()-wrapped
       page-content.ts     # getPageContent(key) -- same
