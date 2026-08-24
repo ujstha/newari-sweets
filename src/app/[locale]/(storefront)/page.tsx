@@ -11,6 +11,88 @@ import { getPublicImageUrl } from "@/lib/content/image-url";
 import { Link } from "@/i18n/navigation";
 import { ProductGrid } from "@/components/ProductGrid";
 
+// One tile of the hero photo mosaic -- purely decorative (a designer
+// collage, not a shop grid), so no link, no caption, empty alt. The
+// Featured/Best Sellers sections below already handle "click to buy a
+// specific product."
+function HeroMosaicTile({
+  src,
+  className = "",
+  priority = false,
+}: {
+  src: string;
+  className?: string;
+  priority?: boolean;
+}) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section (no optimizer on Cloudflare)
+    <img
+      src={src}
+      alt=""
+      fetchPriority={priority ? "high" : undefined}
+      // w-full h-full + min-h-0: without these, a grid item that's a raw
+      // <img> sizes to its own intrinsic aspect ratio instead of
+      // stretching to fill its assigned cell -- causes overflow past the
+      // cell (looked like "too tall") that visually overlaps whatever's
+      // in the row below, rather than object-cover cropping cleanly
+      // within the cell's actual bounds.
+      className={`h-full w-full min-h-0 rounded-2xl bg-brand-soft object-cover ${className}`}
+    />
+  );
+}
+
+// Badge content only -- no card chrome -- so the same content can sit
+// inside the mosaic grid (6+ real photos) or stand alone (fallback below
+// 4 photos), see HomePage below.
+function HeroBadgeContent({
+  headingLead,
+  headingAccent,
+  subtext,
+  aboutBody,
+}: {
+  headingLead: string;
+  headingAccent: string;
+  subtext: string | null;
+  aboutBody: string | null;
+}) {
+  return (
+    <>
+      <span className="pill-filter">Handmade in Helsinki</span>
+      {/* Two-tone headline -- the last word takes the theme's pop accent,
+          so each color theme reads distinctly here too, not just in the
+          background. Sized for the badge's own footprint (roughly half
+          the hero width once the mosaic is present), not the full-bleed
+          size the old single-column hero used. */}
+      <h1 className="font-pop text-4xl leading-[0.92] font-extrabold tracking-tight uppercase sm:text-5xl lg:text-6xl">
+        {headingLead ? <span className="text-ink">{headingLead} </span> : null}
+        <span className="text-pop-pink">{headingAccent}</span>
+      </h1>
+      {subtext ? (
+        <p className="max-w-xs font-display text-base text-ink-soft italic sm:max-w-sm sm:text-lg">
+          {subtext}
+        </p>
+      ) : null}
+      <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs text-ink-faint">
+        <span>Pickup or local delivery</span>
+        <span aria-hidden="true">&middot;</span>
+        <span>Helsinki area</span>
+        <span aria-hidden="true">&middot;</span>
+        <span>Order 2+ days ahead</span>
+      </p>
+      <div className="mt-1 flex flex-wrap items-center justify-center gap-3">
+        <Link href="/products" className="btn-primary bg-ink text-cream hover:bg-ink/90">
+          Browse the shop
+        </Link>
+        {aboutBody ? (
+          <a href="#about" className="btn-secondary">
+            About us
+          </a>
+        ) : null}
+      </div>
+    </>
+  );
+}
+
 const VALUE_PROPS = [
   {
     title: "Handmade to order",
@@ -69,74 +151,117 @@ export default async function HomePage() {
   const subtext = pickLocalized(settings.hero_subtext_i18n, locale);
   const aboutBody = pickLocalized(about.body_i18n, locale);
 
-  const heroImage =
-    settings.hero_image_url || featured[0]?.primary_image_path
-      ? settings.hero_image_url || getPublicImageUrl(featured[0].primary_image_path!)
-      : null;
+  // Up to 6 real catalog photos for the hero's decorative photo mosaic --
+  // deduped by product id, same traversal order as the original mosaic
+  // design (featured, then best-sellers, then everything else) so the
+  // photo-to-slot layout stays exactly as approved.
+  const seenProductIds = new Set<string>();
+  const dedupedImages: string[] = [];
+  for (const product of [...featured, ...bestSellers, ...allProducts]) {
+    if (seenProductIds.has(product.id) || !product.primary_image_path) continue;
+    seenProductIds.add(product.id);
+    dedupedImages.push(getPublicImageUrl(product.primary_image_path));
+  }
+  const mosaicImages = dedupedImages.slice(0, 6);
+  const hasMosaic = mosaicImages.length >= 4;
 
-  const categories = [...new Map(allProducts.map((p) => [p.category.slug, p.category])).values()];
+  const headingWords = heading.trim().split(/\s+/);
+  const headingLead = headingWords.slice(0, -1).join(" ");
+  const headingAccent = headingWords[headingWords.length - 1] ?? "";
 
   return (
     <main>
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-dark to-brand">
-        {/* Purely decorative glow shapes -- the one bold-pop moment on the
-            page (see docs/design-examples), so the color energy here is
-            deliberately louder than the rest of the site. */}
+      <section className="relative overflow-hidden bg-cream">
+        {/* Soft decorative glow shapes -- lighter version of the old dark
+            hero's glow, per the light-background direction (see
+            docs/design-examples). */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute top-[-120px] right-[-80px] h-80 w-80 rounded-full bg-white/[0.06] sm:h-[420px] sm:w-[420px]"
+          className="pointer-events-none absolute top-[-140px] right-[-100px] h-72 w-72 rounded-full bg-gold/15 sm:h-[380px] sm:w-[380px]"
         />
+        {/* Contained within the hero's own bounds (not bleeding past the
+            bottom edge) -- the section below is the same bg-cream, so a
+            shape designed to "bleed off a colored band" would otherwise
+            look like an orphaned half-circle floating at an invisible
+            boundary instead of an intentional background accent. */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute bottom-[-140px] left-[15%] h-56 w-56 rounded-full bg-pop-pink/25 sm:h-80 sm:w-80"
+          className="pointer-events-none absolute bottom-6 left-[15%] h-56 w-56 rounded-full bg-pop-pink/10 sm:h-72 sm:w-72"
         />
-        <div className="relative mx-auto grid max-w-5xl items-center gap-10 px-4 py-16 sm:px-8 sm:py-24 md:grid-cols-2 md:gap-14">
-          <div className="flex flex-col items-center gap-5 text-center md:items-start md:text-left">
-            <span className="pill-filter-inverse">Handmade in Helsinki</span>
-            <h1 className="font-pop text-4xl leading-[0.92] font-extrabold tracking-tight text-cream uppercase sm:text-6xl">
-              {heading}
-            </h1>
-            {subtext ? (
-              <p className="max-w-xl text-base text-cream/85 sm:text-lg">{subtext}</p>
-            ) : null}
-            <div className="mt-2 flex flex-wrap items-center justify-center gap-3 md:justify-start">
-              <Link href="/products" className="btn-primary bg-gold text-ink hover:bg-gold/90">
-                Browse the shop
-              </Link>
-              {aboutBody ? (
-                <a href="#about" className="btn-ghost-inverse">
-                  About us
-                </a>
-              ) : null}
-            </div>
-          </div>
+        <div className="relative mx-auto max-w-5xl px-4 py-16 sm:px-8 sm:py-20">
+          {hasMosaic ? (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:grid-rows-3 md:aspect-[4/3] md:gap-3">
+              {/* Badge -- a real grid cell (not an absolute overlay), so it
+                  cleanly owns one rectangular region instead of clipping the
+                  corners of the 4 photo tiles it would otherwise sit on top
+                  of. order-1 puts it first on mobile (full-width, legible,
+                  no photos crowding it); explicit grid placement takes over
+                  at md:. */}
+              <div className="order-1 flex flex-col items-center justify-center gap-4 rounded-3xl border border-border-warm bg-surface p-6 text-center shadow-xl sm:p-8 md:order-none md:col-start-2 md:row-start-2 md:col-span-2 md:row-span-2">
+                <HeroBadgeContent
+                  headingLead={headingLead}
+                  headingAccent={headingAccent}
+                  subtext={subtext}
+                  aboutBody={aboutBody}
+                />
+              </div>
 
-          {heroImage ? (
-            <div className="order-first mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-full shadow-2xl md:order-last md:max-w-[380px]">
-              {/* eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section (no optimizer on Cloudflare) */}
-              <img src={heroImage} alt="" className="h-full w-full object-cover" />
+              {/* Photo mosaic -- a simple 2-col grid on mobile, released via
+                  md:contents into the outer bento grid's own placement
+                  classes on desktop (same technique the old flanking-pill
+                  layout used for its own mobile/desktop regrouping). */}
+              <div className="order-2 grid grid-cols-2 gap-2 md:contents">
+                <HeroMosaicTile
+                  src={mosaicImages[0]}
+                  priority
+                  className="aspect-square md:aspect-auto md:col-start-1 md:row-start-1"
+                />
+                <HeroMosaicTile
+                  src={mosaicImages[1]}
+                  className="aspect-square md:aspect-auto md:col-start-2 md:row-start-1"
+                />
+                <HeroMosaicTile
+                  src={mosaicImages[2]}
+                  className="aspect-square md:aspect-auto md:col-start-3 md:row-start-1"
+                />
+                {mosaicImages[3] ? (
+                  <HeroMosaicTile
+                    src={mosaicImages[3]}
+                    // Absorbs the 6th cell's row when there's no 6th photo
+                    // (current catalog has 5, not 6) -- spans the full
+                    // column instead of leaving an empty cell below it.
+                    className={`aspect-square md:aspect-auto md:col-start-4 md:row-start-1 ${
+                      mosaicImages[5] ? "md:row-span-2" : "md:row-span-3"
+                    }`}
+                  />
+                ) : null}
+                {mosaicImages[4] ? (
+                  <HeroMosaicTile
+                    src={mosaicImages[4]}
+                    className="aspect-square md:aspect-auto md:col-start-1 md:row-start-2 md:row-span-2"
+                  />
+                ) : null}
+                {mosaicImages[5] ? (
+                  <HeroMosaicTile
+                    src={mosaicImages[5]}
+                    className="aspect-square md:aspect-auto md:col-start-4 md:row-start-3"
+                  />
+                ) : null}
+              </div>
             </div>
-          ) : null}
+          ) : (
+            // Fewer than 4 real product photos exist -- skip the mosaic
+            // entirely rather than rendering a sparse/awkward grid.
+            <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-4 rounded-3xl border border-border-warm bg-surface p-6 text-center shadow-xl sm:p-8">
+              <HeroBadgeContent
+                headingLead={headingLead}
+                headingAccent={headingAccent}
+                subtext={subtext}
+                aboutBody={aboutBody}
+              />
+            </div>
+          )}
         </div>
-
-        {categories.length > 1 ? (
-          <div className="relative border-t border-white/10">
-            <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-2 px-4 py-4 sm:justify-start sm:px-8">
-              <span className="text-xs font-medium tracking-wide text-cream/50 uppercase">
-                Shop by category
-              </span>
-              {categories.map((category) => (
-                <Link
-                  key={category.slug}
-                  href={{ pathname: "/products", hash: category.slug }}
-                  className="pill-filter-inverse"
-                >
-                  {category.name_i18n.en}
-                </Link>
-              ))}
-            </div>
-          </div>
-        ) : null}
       </section>
 
       <div className="mx-auto max-w-5xl px-4 sm:px-8">
