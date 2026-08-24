@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono, Fraunces, Bricolage_Grotesque } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
@@ -6,7 +7,16 @@ import { routing } from "@/i18n/routing";
 import { getSiteSettings } from "@/lib/content/site-settings";
 import { CartProvider } from "@/lib/cart/CartContext";
 import { FavoritesProvider } from "@/lib/favorites/FavoritesContext";
+import { DEFAULT_THEME, SITE_THEMES, THEME_STORAGE_KEY } from "@/lib/theme";
 import "../globals.css";
+
+// Applies a visitor's previously-picked theme (see ThemeSwitcher) before
+// hydration, so returning visitors don't see a flash of DEFAULT_THEME.
+// beforeInteractive per Next.js docs: injected into <head> and run before
+// any page script/hydration.
+const THEME_INIT_SCRIPT = `(function(){try{var t=window.localStorage.getItem(${JSON.stringify(
+  THEME_STORAGE_KEY,
+)});if(t&&${JSON.stringify(SITE_THEMES)}.indexOf(t)!==-1){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();`;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -73,9 +83,18 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
   return (
     <html
       lang={locale}
+      data-theme={DEFAULT_THEME}
+      // The beforeInteractive script above may rewrite data-theme from a
+      // stored visitor preference before React hydrates -- an intentional,
+      // expected mismatch (the same pattern next-themes/Next's own dark
+      // mode docs use), not a real bug to warn about.
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${bricolage.variable} h-full scroll-smooth antialiased`}
     >
       <body id="top" className="flex min-h-full flex-col bg-cream text-ink">
+        <Script id="theme-init" strategy="beforeInteractive">
+          {THEME_INIT_SCRIPT}
+        </Script>
         <NextIntlClientProvider>
           <FavoritesProvider>
             <CartProvider>{children}</CartProvider>
