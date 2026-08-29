@@ -133,7 +133,7 @@ body {
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-brand px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-brand-dark active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
+    @apply inline-flex items-center justify-center rounded-full bg-brand px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-brand-dark active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
   }
   .btn-secondary {
     @apply inline-flex items-center justify-center rounded-full border border-border-warm bg-surface px-5 py-2.5 text-sm font-medium text-ink transition-all hover:border-brand hover:text-brand active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
@@ -153,7 +153,7 @@ body {
     @apply focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:outline-none;
   }
   .card-surface {
-    @apply rounded-2xl border border-border-warm bg-surface shadow-[0_1px_2px_rgba(43,23,16,0.04)];
+    @apply rounded-2xl border border-border-warm bg-surface;
   }
   .input-field {
     @apply w-full rounded-xl border border-border-warm bg-surface px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:border-brand focus:ring-1 focus:ring-brand focus:outline-none;
@@ -169,10 +169,10 @@ body {
      popularity ("Popular"/bestseller). Two tiers, two colors, each with a
      real meaning -- not decoration. */
   .badge-featured {
-    @apply rounded-full bg-gold px-2.5 py-0.5 text-xs font-medium text-ink shadow-sm;
+    @apply rounded-full bg-gold px-2.5 py-0.5 text-xs font-medium text-ink;
   }
   .badge-popular {
-    @apply rounded-full bg-pop-pink px-2.5 py-0.5 text-xs font-medium text-white shadow-sm;
+    @apply rounded-full bg-pop-pink px-2.5 py-0.5 text-xs font-medium text-white;
   }
 
   /* Category/filter pill -- the Fcodly-style functional filter bar reused
