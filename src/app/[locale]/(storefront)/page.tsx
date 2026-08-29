@@ -308,7 +308,7 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="mt-5">
-              <ProductGrid products={featured} />
+              <ProductGrid products={featured} showPrice />
             </div>
           </section>
         ) : null}
@@ -355,7 +355,7 @@ export default async function HomePage() {
           <section className="border-t border-border-warm py-10 sm:py-14">
             <h2 className="font-display text-2xl font-semibold text-ink">Best Sellers</h2>
             <div className="mt-5">
-              <ProductGrid products={bestSellers} showPopularBadge />
+              <ProductGrid products={bestSellers} showPopularBadge showPrice />
             </div>
           </section>
         ) : null}

@@ -58,7 +58,7 @@ export async function Footer() {
         <div className="flex flex-col gap-10 text-sm sm:flex-row sm:flex-wrap sm:justify-between sm:gap-x-12 sm:gap-y-10">
           <div className="sm:max-w-64">
             <Link href="/" className="flex items-center">
-              <LogoMark />
+              <LogoMark className="h-20 w-20" />
             </Link>
             <p className="mt-3 text-sm font-normal text-cream/50">
               Handmade Nepali sweets &amp; custom cakes, made to order in Helsinki.

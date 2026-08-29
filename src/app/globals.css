@@ -34,6 +34,12 @@
      OG/social-share image only. Not a general second typeface: everywhere
      else keeps --font-display/--font-sans. */
   --font-pop: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  /* Logo wordmark faces -- scoped to LogoMark's nav lockup ONLY, echoing
+     the actual brand logo artwork's own typography (classical serif +
+     flowing script). Never used for general headings, which stay on
+     --font-display. */
+  --font-logo-serif: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  --font-logo-script: var(--font-great-vibes), cursive;
 }
 
 /* Named color themes -- a fixed set, swapped via the SITE_THEME constant in
