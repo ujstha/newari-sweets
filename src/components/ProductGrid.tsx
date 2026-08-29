@@ -2,6 +2,7 @@ import { Link } from "@/i18n/navigation";
 import { getPublicImageUrl } from "@/lib/content/image-url";
 import type { CatalogProductListItem } from "@/lib/content/public-catalog";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import { QuickAddButton } from "@/components/QuickAddButton";
 
 export function ProductGrid({
   products,
@@ -83,6 +84,11 @@ export function ProductGrid({
                 <span className="text-brand">&#9670;</span>
                 {(product.base_price_cents / 100).toFixed(2)} € / {product.unit.code}
               </p>
+            ) : null}
+            {!product.has_required_options ? (
+              <div className="mt-2">
+                <QuickAddButton product={product} />
+              </div>
             ) : null}
           </div>
         </Link>

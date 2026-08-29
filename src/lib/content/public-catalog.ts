@@ -15,10 +15,17 @@ export interface CatalogProductListItem {
   slug: string;
   name_i18n: LocalizedText;
   base_price_cents: number;
-  unit: { code: string; label_i18n: LocalizedText };
+  unit: { code: string; label_i18n: LocalizedText; default_step: number };
   category: { slug: string; name_i18n: LocalizedText };
   primary_image_path: string | null;
   is_featured: boolean;
+  min_prep_days: number | null;
+  // True when any option group demands a choice before the item is
+  // actually orderable (e.g. cake size/flavor) -- the grid card's quick
+  // "Add to cart" only makes sense when this is false, since there's no
+  // UI on the card itself to make that choice. Only the group-level flag
+  // is needed here, not the full option data the PDP fetches separately.
+  has_required_options: boolean;
 }
 
 // Public read (RLS: active products only for anon). Grouped by category for
@@ -28,7 +35,7 @@ export const getActiveProducts = cache(async (): Promise<CatalogProductListItem[
   const { data } = await supabase
     .from("products")
     .select(
-      "id, slug, name_i18n, base_price_cents, is_featured, unit:units(code, label_i18n), category:categories(slug, name_i18n), product_images(storage_path, is_primary)",
+      "id, slug, name_i18n, base_price_cents, is_featured, min_prep_days, unit:units(code, label_i18n, default_step), category:categories(slug, name_i18n), product_images(storage_path, is_primary), option_groups(is_required)",
     )
     .eq("is_active", true)
     .order("sort_order");
@@ -36,15 +43,18 @@ export const getActiveProducts = cache(async (): Promise<CatalogProductListItem[
   return (data ?? []).map((p) => {
     const images = p.product_images as { storage_path: string; is_primary: boolean }[];
     const primary = images.find((i) => i.is_primary) ?? images[0];
+    const optionGroups = p.option_groups as { is_required: boolean }[];
     return {
       id: p.id,
       slug: p.slug,
       name_i18n: p.name_i18n,
       base_price_cents: p.base_price_cents,
       is_featured: p.is_featured,
-      unit: p.unit as unknown as { code: string; label_i18n: LocalizedText },
+      min_prep_days: p.min_prep_days,
+      unit: p.unit as unknown as { code: string; label_i18n: LocalizedText; default_step: number },
       category: p.category as unknown as { slug: string; name_i18n: LocalizedText },
       primary_image_path: primary?.storage_path ?? null,
+      has_required_options: optionGroups.some((g) => g.is_required),
     };
   });
 });

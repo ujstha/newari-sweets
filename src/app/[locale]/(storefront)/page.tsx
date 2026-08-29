@@ -169,6 +169,70 @@ export default async function HomePage() {
   const headingLead = headingWords.slice(0, -1).join(" ");
   const headingAccent = headingWords[headingWords.length - 1] ?? "";
 
+  // Category quick-nav rail -- one circular thumbnail per category, using
+  // each category's own first photographed product (already sorted by
+  // sort_order from getActiveProducts) rather than a separate icon asset.
+  // Links reuse the /products#slug deep link ProductListingClient already
+  // reads out of the hash on mount. See docs/design-examples/
+  // anandhaas-video-analysis.md's Tier A recommendations.
+  const categories = [...new Map(allProducts.map((p) => [p.category.slug, p.category])).values()];
+  const categoryThumbnails = categories
+    .map((c) => ({
+      ...c,
+      image: allProducts.find((p) => p.category.slug === c.slug && p.primary_image_path)
+        ?.primary_image_path,
+    }))
+    .filter((c): c is typeof c & { image: string } => c.image != null);
+
+  // Curated occasion cards -- real product photos, hand-picked framing/copy
+  // (not a literal 1:1 category listing, which the rail above already
+  // covers). Kept as a separate section from the Custom Cakes promo band
+  // rather than folded into it, even though both ultimately point at the
+  // small real category set. Each `find` excludes images already claimed by
+  // an earlier occasion card so the section doesn't repeat the same photo
+  // twice with different captions.
+  const usedForOccasions = new Set<string>();
+  function pickOccasionImage(categorySlug: string) {
+    const product = allProducts.find(
+      (p) =>
+        p.category.slug === categorySlug && p.primary_image_path && !usedForOccasions.has(p.id),
+    );
+    if (!product?.primary_image_path) return null;
+    usedForOccasions.add(product.id);
+    return getPublicImageUrl(product.primary_image_path);
+  }
+  const hasSweets = categories.some((c) => c.slug === "sweets");
+  const hasCakes = categories.some((c) => c.slug === "cakes");
+  const occasions = [
+    hasSweets
+      ? {
+          title: "Dashain & Tihar",
+          body: "Festival trays of mithai for the biggest celebrations of the year.",
+          href: "/products#sweets",
+          image: pickOccasionImage("sweets"),
+        }
+      : null,
+    hasCakes
+      ? {
+          title: "Weddings, Birthdays & Celebrations",
+          body: "Custom cakes made to order -- tell us the flavor, size and date.",
+          href: "/products#cakes",
+          image: pickOccasionImage("cakes"),
+        }
+      : null,
+    hasSweets
+      ? {
+          title: "Gifting",
+          body: "Boxed mithai, handmade and ready to bring to family or friends.",
+          href: "/products#sweets",
+          image: pickOccasionImage("sweets"),
+        }
+      : null,
+  ].filter(
+    (o): o is { title: string; body: string; href: string; image: string } =>
+      o != null && o.image != null,
+  );
+
   return (
     <main>
       <section className="relative overflow-hidden bg-cream">
@@ -288,6 +352,65 @@ export default async function HomePage() {
             </div>
           ))}
         </div>
+
+        {categoryThumbnails.length > 0 ? (
+          <section className="border-t border-border-warm py-10 sm:py-14">
+            <h2 className="font-display text-2xl font-semibold text-ink">Shop by category</h2>
+            <div className="mt-5 flex flex-wrap gap-6 sm:gap-8">
+              {categoryThumbnails.map((category) => (
+                <Link
+                  key={category.slug}
+                  href={`/products#${category.slug}`}
+                  className="group flex flex-col items-center gap-2 text-center"
+                >
+                  <span className="h-20 w-20 overflow-hidden rounded-full border border-border-warm bg-brand-soft transition-transform group-hover:scale-105 sm:h-24 sm:w-24">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section (no optimizer on Cloudflare) */}
+                    <img
+                      src={getPublicImageUrl(category.image)}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  </span>
+                  <span className="text-sm font-medium text-ink">{category.name_i18n.en}</span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {occasions.length > 0 ? (
+          <section className="border-t border-border-warm py-10 sm:py-14">
+            <h2 className="font-display text-2xl font-semibold text-ink">Shop by occasion</h2>
+            <div className="mt-5 grid gap-4 sm:grid-cols-3 sm:gap-6">
+              {occasions.map((occasion) => (
+                <Link
+                  key={occasion.title}
+                  href={occasion.href}
+                  className="group relative block overflow-hidden rounded-2xl border border-border-warm"
+                >
+                  <div className="aspect-[4/3] w-full overflow-hidden bg-brand-soft">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- see PLAN.md's Deployment section (no optimizer on Cloudflare) */}
+                    <img
+                      src={occasion.image}
+                      alt=""
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/15 to-transparent"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 p-4">
+                    <h3 className="font-display text-lg font-semibold text-white">
+                      {occasion.title}
+                    </h3>
+                    <p className="mt-1 text-xs text-white/85">{occasion.body}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {aboutBody ? (
           <section id="about" className="scroll-mt-20 border-t border-border-warm py-10 sm:py-14">
