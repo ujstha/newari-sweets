@@ -355,7 +355,7 @@ export default async function HomePage() {
 
         {categoryThumbnails.length > 0 ? (
           <section className="border-t border-border-warm py-10 sm:py-14">
-            <h2 className="font-display text-2xl font-semibold text-ink">Shop by category</h2>
+            <h2 className="font-display text-2xl font-semibold text-ink">Pick Your Sweet</h2>
             <div className="mt-5 flex flex-wrap gap-6 sm:gap-8">
               {categoryThumbnails.map((category) => (
                 <Link
@@ -380,7 +380,9 @@ export default async function HomePage() {
 
         {occasions.length > 0 ? (
           <section className="border-t border-border-warm py-10 sm:py-14">
-            <h2 className="font-display text-2xl font-semibold text-ink">Shop by occasion</h2>
+            <h2 className="font-display text-2xl font-semibold text-ink">
+              Perfect for Every Celebration
+            </h2>
             <div className="mt-5 grid gap-4 sm:grid-cols-3 sm:gap-6">
               {occasions.map((occasion) => (
                 <Link
