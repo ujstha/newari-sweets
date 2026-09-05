@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart/CartContext";
 import { computeLinePrice } from "@/lib/domain/pricing";
 import { computeDisplayedAllergens } from "@/lib/domain/ingredients";
@@ -77,6 +78,7 @@ function defaultSelections(groups: CatalogProductDetail["option_groups"]) {
 
 export function ProductDetail({ product }: { product: CatalogProductDetail }) {
   const { addItem } = useCart();
+  const router = useRouter();
   const [mode, setMode] = useState<"quick" | "customize">("quick");
   const [selected, setSelected] = useState(() => defaultSelections(product.option_groups));
   const [quantity, setQuantity] = useState(1);
@@ -126,8 +128,8 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
     });
   }
 
-  function handleAddToCart() {
-    addItem({
+  function buildCartItem() {
+    return {
       productId: product.id,
       productSlug: product.slug,
       name: product.name_i18n.en ?? "",
@@ -148,9 +150,22 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
       ),
       customNote,
       cakeMessage,
-    });
+    };
+  }
+
+  function handleAddToCart() {
+    addItem(buildCartItem());
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+  }
+
+  // Skips the cart page entirely -- adds this item to whatever's already in
+  // the cart (no isolated single-item checkout path; see the Tier B scoping
+  // discussion in docs/design-examples/anandhaas-video-analysis.md) and goes
+  // straight to /checkout, which always checks out the full cart.
+  function handleBuyNow() {
+    addItem(buildCartItem());
+    router.push("/checkout");
   }
 
   return (
@@ -348,32 +363,37 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
           </p>
 
           {/* Hidden on mobile in favor of the sticky bar below -- avoids two
-              competing Add to cart buttons on a small screen. Desktop keeps
-              this one since it's already in easy reach there. */}
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            className="btn-primary mt-3 hidden w-full py-3 sm:flex"
-          >
-            {added ? "Added to cart ✓" : "Add to cart"}
-          </button>
+              competing sets of CTAs on a small screen. Desktop keeps these
+              since they're already in easy reach there. Buy Now carries the
+              stronger (btn-primary) styling as the higher-intent action. */}
+          <div className="mt-3 hidden gap-3 sm:flex">
+            <button type="button" onClick={handleAddToCart} className="btn-secondary flex-1 py-3">
+              {added ? "Added ✓" : "Add to cart"}
+            </button>
+            <button type="button" onClick={handleBuyNow} className="btn-primary flex-1 py-3">
+              Buy now
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Sticky mobile "buy bar" -- price + Add to cart pinned to the
-          viewport bottom, always in reach without scrolling back up. The
+      {/* Sticky mobile "buy bar" -- price + CTAs pinned to the viewport
+          bottom, always in reach without scrolling back up. The
           highest-leverage mobile e-commerce pattern per the design research
-          behind this change; desktop doesn't need it (button's already
+          behind this change; desktop doesn't need it (buttons are already
           visible in normal flow there). */}
       <div
-        className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-3 border-t border-border-warm bg-surface/95 px-4 py-3 backdrop-blur sm:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-2 border-t border-border-warm bg-surface/95 px-4 py-3 backdrop-blur sm:hidden"
         style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
       >
         <p className="font-display text-lg font-semibold text-brand">
           {(price.lineTotalCents / 100).toFixed(2)} €
         </p>
-        <button type="button" onClick={handleAddToCart} className="btn-primary flex-1 py-2.5">
+        <button type="button" onClick={handleAddToCart} className="btn-secondary flex-1 py-2.5">
           {added ? "Added ✓" : "Add to cart"}
+        </button>
+        <button type="button" onClick={handleBuyNow} className="btn-primary flex-1 py-2.5">
+          Buy now
         </button>
       </div>
     </main>
