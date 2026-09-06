@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart/CartContext";
 import { computeLinePrice } from "@/lib/domain/pricing";
 import { computeDisplayedAllergens } from "@/lib/domain/ingredients";
@@ -8,6 +9,47 @@ import type { CatalogProductDetail } from "@/lib/content/public-catalog";
 import { getPublicImageUrl } from "@/lib/content/image-url";
 import { QuantityStepper } from "@/components/QuantityStepper";
 import { FavoriteButton } from "@/components/FavoriteButton";
+
+// Progressive disclosure for content that used to sit as an always-visible
+// paragraph/pill list -- see docs/design-examples/anandhaas-video-analysis.md's
+// PDP gap analysis. Plain <details>/<summary> rather than a JS-driven
+// accordion: no interaction logic worth writing for "show/hide one block."
+function AccordionSection({
+  title,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <details className="group rounded-2xl border border-border-warm bg-surface" open={defaultOpen}>
+      <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-ink marker:content-['']">
+        {title}
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+          className="shrink-0 text-ink-faint transition-transform group-open:rotate-180"
+        >
+          <path
+            d="M6 9l6 6 6-6"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </summary>
+      <div className="border-t border-border-warm px-4 py-3 text-sm leading-relaxed text-ink-soft">
+        {children}
+      </div>
+    </details>
+  );
+}
 
 function defaultSelections(groups: CatalogProductDetail["option_groups"]) {
   const sel: Record<string, string[]> = {};
@@ -36,6 +78,7 @@ function defaultSelections(groups: CatalogProductDetail["option_groups"]) {
 
 export function ProductDetail({ product }: { product: CatalogProductDetail }) {
   const { addItem } = useCart();
+  const router = useRouter();
   const [mode, setMode] = useState<"quick" | "customize">("quick");
   const [selected, setSelected] = useState(() => defaultSelections(product.option_groups));
   const [quantity, setQuantity] = useState(1);
@@ -85,8 +128,8 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
     });
   }
 
-  function handleAddToCart() {
-    addItem({
+  function buildCartItem() {
+    return {
       productId: product.id,
       productSlug: product.slug,
       name: product.name_i18n.en ?? "",
@@ -107,9 +150,22 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
       ),
       customNote,
       cakeMessage,
-    });
+    };
+  }
+
+  function handleAddToCart() {
+    addItem(buildCartItem());
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+  }
+
+  // Skips the cart page entirely -- adds this item to whatever's already in
+  // the cart (no isolated single-item checkout path; see the Tier B scoping
+  // discussion in docs/design-examples/anandhaas-video-analysis.md) and goes
+  // straight to /checkout, which always checks out the full cart.
+  function handleBuyNow() {
+    addItem(buildCartItem());
+    router.push("/checkout");
   }
 
   return (
@@ -173,11 +229,6 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
               {product.highlight_note_i18n.en}
             </p>
           ) : null}
-          {product.description_i18n.en ? (
-            <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-              {product.description_i18n.en}
-            </p>
-          ) : null}
           {product.min_prep_days != null ? (
             <p className="mt-3 flex items-center gap-1.5 text-xs text-ink-faint">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -195,16 +246,27 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
             </p>
           ) : null}
 
-          {allergens.length > 0 ? (
-            <div className="mt-4 flex flex-wrap gap-1.5">
-              {allergens.map((a) => (
-                <span
-                  key={a.id}
-                  className="rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-medium text-brand-dark capitalize"
-                >
-                  {a.code.replace("_", " ")}
-                </span>
-              ))}
+          {product.description_i18n.en || allergens.length > 0 ? (
+            <div className="mt-4 space-y-2">
+              {product.description_i18n.en ? (
+                <AccordionSection title="About" defaultOpen>
+                  {product.description_i18n.en}
+                </AccordionSection>
+              ) : null}
+              {allergens.length > 0 ? (
+                <AccordionSection title="Allergens">
+                  <div className="flex flex-wrap gap-1.5">
+                    {allergens.map((a) => (
+                      <span
+                        key={a.id}
+                        className="rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-medium text-brand-dark capitalize"
+                      >
+                        {a.code.replace("_", " ")}
+                      </span>
+                    ))}
+                  </div>
+                </AccordionSection>
+              ) : null}
             </div>
           ) : null}
 
@@ -301,32 +363,37 @@ export function ProductDetail({ product }: { product: CatalogProductDetail }) {
           </p>
 
           {/* Hidden on mobile in favor of the sticky bar below -- avoids two
-              competing Add to cart buttons on a small screen. Desktop keeps
-              this one since it's already in easy reach there. */}
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            className="btn-primary mt-3 hidden w-full py-3 sm:flex"
-          >
-            {added ? "Added to cart ✓" : "Add to cart"}
-          </button>
+              competing sets of CTAs on a small screen. Desktop keeps these
+              since they're already in easy reach there. Buy Now carries the
+              stronger (btn-primary) styling as the higher-intent action. */}
+          <div className="mt-3 hidden gap-3 sm:flex">
+            <button type="button" onClick={handleAddToCart} className="btn-secondary flex-1 py-3">
+              {added ? "Added ✓" : "Add to cart"}
+            </button>
+            <button type="button" onClick={handleBuyNow} className="btn-primary flex-1 py-3">
+              Buy now
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Sticky mobile "buy bar" -- price + Add to cart pinned to the
-          viewport bottom, always in reach without scrolling back up. The
+      {/* Sticky mobile "buy bar" -- price + CTAs pinned to the viewport
+          bottom, always in reach without scrolling back up. The
           highest-leverage mobile e-commerce pattern per the design research
-          behind this change; desktop doesn't need it (button's already
+          behind this change; desktop doesn't need it (buttons are already
           visible in normal flow there). */}
       <div
-        className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-3 border-t border-border-warm bg-surface/95 px-4 py-3 backdrop-blur sm:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-2 border-t border-border-warm bg-surface/95 px-4 py-3 backdrop-blur sm:hidden"
         style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
       >
         <p className="font-display text-lg font-semibold text-brand">
           {(price.lineTotalCents / 100).toFixed(2)} €
         </p>
-        <button type="button" onClick={handleAddToCart} className="btn-primary flex-1 py-2.5">
+        <button type="button" onClick={handleAddToCart} className="btn-secondary flex-1 py-2.5">
           {added ? "Added ✓" : "Add to cart"}
+        </button>
+        <button type="button" onClick={handleBuyNow} className="btn-primary flex-1 py-2.5">
+          Buy now
         </button>
       </div>
     </main>

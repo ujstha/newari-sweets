@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Geist, Geist_Mono, Fraunces, Bricolage_Grotesque } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Fraunces,
+  Bricolage_Grotesque,
+  Cormorant_Garamond,
+  Great_Vibes,
+} from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
@@ -47,6 +54,23 @@ const bricolage = Bricolage_Grotesque({
   weight: ["700", "800"],
 });
 
+// Deliberately scoped to the LogoMark nav wordmark ONLY (never general
+// headings, which stay on Fraunces) -- chosen to echo the actual brand
+// logo artwork's own typography (public/brand-logo-high.png), which
+// pairs a classical high-contrast serif with a flowing script. Same
+// "scoped exception" discipline as --font-pop above.
+const cormorantGaramond = Cormorant_Garamond({
+  variable: "--font-cormorant",
+  subsets: ["latin"],
+  weight: ["600", "700"],
+});
+
+const greatVibes = Great_Vibes({
+  variable: "--font-great-vibes",
+  subsets: ["latin"],
+  weight: "400",
+});
+
 // Site-wide OG/metadata defaults, sourced from admin-editable content so
 // they stay correct without a redeploy -- individual pages (homepage,
 // legal pages) can still override title/description via their own
@@ -89,7 +113,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
       // expected mismatch (the same pattern next-themes/Next's own dark
       // mode docs use), not a real bug to warn about.
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${bricolage.variable} h-full scroll-smooth antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${bricolage.variable} ${cormorantGaramond.variable} ${greatVibes.variable} h-full scroll-smooth antialiased`}
     >
       <body id="top" className="flex min-h-full flex-col bg-cream text-ink">
         <Script id="theme-init" strategy="beforeInteractive">
